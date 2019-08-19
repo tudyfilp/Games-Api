@@ -10,6 +10,8 @@ var NewUserValidator = require('./Firebase/NewUserValidator.js');
 
 const PORT = process.env.PORT || 3000;
 
+const userService = require('./service/userService');
+
 app.use(cors());
 
 // app.use(cors({
@@ -33,6 +35,7 @@ app.use(cors());
 // }));
 
 app.use(bodyParser.json());
+app.use(express.urlencoded());
 
 app.get('/', (req, res) => {
     console.log('New req');
@@ -45,8 +48,9 @@ app.get('/doesUserExist', (req, res) => {
 
     NewUserValidator.isValidUsername(username).then(result => 
         res.send(result)).catch(err => res.send(err));
-
 });
+
+app.post('/authenticateUser', userService.authenticateUser);
 
 let names = [];
 io.on('connection', (socket) => {
