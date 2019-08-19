@@ -1,13 +1,37 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
+const io = require('socket.io')(server);
+io.origins('*:*');
 
 var NewUserValidator = require('./Firebase/NewUserValidator.js');
 
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+
+// app.use(cors({
+//     origin: function(origin, callback){
+//         // allow requests with no origin 
+//         // (like mobile apps or curl requests)
+//         var allowedOrigins = ['http://localhost:8080', 'http://localhost:3000'];
+
+//         if(!origin) {
+//             return callback(null, true);
+//         }
+
+//         if(allowedOrigins.indexOf(origin) === -1){
+//             var msg = 'The CORS policy for this site does not ' +
+//                 'allow access from the specified Origin.';
+//             return callback(new Error(msg), false);
+//         }
+
+//         return callback(null, true);
+//     }
+// }));
+
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
@@ -24,6 +48,27 @@ app.get('/doesUserExist', (req, res) => {
 
 });
 
-app.listen(PORT, () => {
+let names = [];
+io.on('connection', (socket) => {
+
+    socket.emit('nameChange', names);
+
+    socket.on('addName', (name) => {
+        names.push(name);
+
+        console.log(names);
+        
+        io.emit('nameChange', names);
+    });
+
+    socket.on('deleteName', (index) => {
+        names.splice(index, 1);
+
+        io.emit('nameChange', names);
+    });
+    //console.log(socket);
+});
+
+server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);
 });
