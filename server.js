@@ -7,11 +7,11 @@ const io = require('socket.io')(server);
 io.origins('*:*');
 
 var NewUserValidator = require('./Firebase/NewUserValidator.js');
-var NewSession = require('./Firebase/NewSession.js');
  
 const PORT = process.env.PORT || 3000;
 
 const userService = require('./service/userService');
+const gamesService = require('./service/gamesService');
 
 app.use(cors());
 
@@ -51,14 +51,9 @@ app.get('/doesUserExist', (req, res) => {
         res.send(result)).catch(err => res.send(err));
 });
 
-app.get('/getSession', (req, res) => {
-    let name = req.body.name;
-
-    NewSession.getSession(name).then(result => 
-        res.send(result)).catch(err => res.send(err));
-
-});
 app.post('/authenticateUser', userService.authenticateUser);
+
+app.post('/getSession', gamesService.getSession);
 
 let names = [];
 io.on('connection', (socket) => {
