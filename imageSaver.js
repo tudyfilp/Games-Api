@@ -1,8 +1,8 @@
 const fs = require('fs');
 
-module.exports = function(file) {
-    let filename = file.originalname;
-    fs.writeFile(__dirname + `/images/${filename}`, file.buffer, 
+module.exports = function(file, filename) {
+    
+    fs.writeFile(__dirname + `/images/${filename}.jpg`, file.buffer, 
     (err) => {
         console.log(err);
     });

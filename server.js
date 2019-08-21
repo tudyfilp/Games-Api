@@ -12,6 +12,7 @@ io.origins('*:*');
 const PORT = process.env.PORT || 3000;
 
 const userService = require('./service/userService');
+const gamesService = require('./service/gamesService');
 
 app.use(cors());
 
@@ -33,6 +34,12 @@ app.get('/doesUserExist', (req, res) => {
 });
 
 app.post('/authenticateUser', userService.authenticateUser);
+
+app.post('/getSession', gamesService.getSession);
+
+app.post('/addSentence', gamesService.addSentence);
+
+app.post('/getAllGames', gamesService.getAllGames);
 
 let names = [];
 io.on('connection', (socket) => {
