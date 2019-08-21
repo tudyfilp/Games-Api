@@ -10,7 +10,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
     }
 
    
-    async updateSession(sessionKey,item){
+    async setSession(sessionKey,item){
 
         let path = this._sessionsPath;
 
@@ -30,9 +30,9 @@ class GamesFirebaseRepository extends FirebaseRepository {
         return documentRef.id;
     }
 
-    async addSessionField(sessionKey,item){
+    async setSessionField(sessionKey,item){
 
-        await this.updateSession(sessionKey,item);
+        await this.setSession(sessionKey,item);
     
         return "added";
      }

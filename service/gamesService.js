@@ -40,7 +40,7 @@ const addSentence =  async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.addSessionField(req.body.sessionKey,{phrase: "Harry Potter", availablePlaces:4});
+            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Indiana", availablePlaces:4});
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
