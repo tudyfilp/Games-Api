@@ -59,6 +59,8 @@ app.post('/addSentence', gamesService.addSentence);
 
 app.post('/getAllGames', gamesService.getAllGames);
 
+app.post('/addCategory', gamesService.addCategory);
+
 let names = [];
 io.on('connection', (socket) => {
 

@@ -39,16 +39,16 @@ class GamesFirebaseRepository extends FirebaseRepository {
     
    async getSession(cb) { 
 
-    let path = this._sessionsPath;
+        let path = this._sessionsPath;
 
-    this._database.collection(path)
+        this._database.collection(path)
                    .where("availablePlaces",">",0)
                    .limit(1)
                    .get()
                    .then((querySnapshot) => {
                         if(querySnapshot.empty === true) 
                         {    
-                            this.addSession(key).then((result)=>cb(result));
+                            this.addSession(this._gameKey).then((result)=>cb(result));
                         }
                        else
                        {  
