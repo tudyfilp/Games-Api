@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const bodyParser = require('body-parser');
 const server = require('http').createServer(app);
+const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
 var NewUserValidator = require('./Firebase/NewUserValidator.js');
 var adminRouter = require('./routers/admin');
@@ -11,8 +11,12 @@ io.origins('*:*');
 
 const PORT = process.env.PORT || 3000;
 
+const userService = require('./service/userService');
+
 app.use(cors());
+
 app.use(bodyParser.json());
+app.use(express.urlencoded());
 
 app.use('/admin', adminRouter);
 
@@ -26,15 +30,29 @@ app.get('/doesUserExist', (req, res) => {
 
     NewUserValidator.isValidUsername(username).then(result => 
         res.send(result)).catch(err => res.send(err));
-
 });
 
-io.on('connection', (socket) => {
-    socket.broadcast.emit('broadcast', "hello there, new user!");
+app.post('/authenticateUser', userService.authenticateUser);
 
-    socket.on("newMessage", (message) => {
-        socket.broadcast.emit("receivedMessage", message);
-    })
+let names = [];
+io.on('connection', (socket) => {
+
+    socket.emit('nameChange', names);
+
+    socket.on('addName', (name) => {
+        names.push(name);
+
+        console.log(names);
+        
+        io.emit('nameChange', names);
+    });
+
+    socket.on('deleteName', (index) => {
+        names.splice(index, 1);
+
+        io.emit('nameChange', names);
+    });
+    //console.log(socket);
 });
 
 server.listen(PORT, () => {
