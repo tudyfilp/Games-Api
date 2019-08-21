@@ -1,26 +1,25 @@
 const db = require('../Firebase/Firestore');
 const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
 
-const repository = new GamesFirebaseRepository(db);
+const repository = new GamesFirebaseRepository(db,"8jmng49yYAUjO8nyDU03");
+
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     let games = await repository.getAll();
-    console.log(games);
     res.end(JSON.stringify(
         {
             status: 'OK',
-            message: games.docs
+            message: games
         }
         ));           
 
     };
 
-
 const addSentence =  async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    if (req.body.hasOwnProperty('sessionKey') === true && req.body.hasOwnProperty('gameKey') === true) {
+    if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.addSentence(req.body.gameKey, req.body.sessionKey);
+            let result = await repository.addSessionField(req.body.sessionKey,{generatedSentence:"Harry",availablePlaces:4});
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
@@ -41,7 +40,7 @@ const addSentence =  async (req, res) => {
         res.end(JSON.stringify(
             {
                 status: 'ERROR',
-                message: 'No gameKey or sessionKey was supplied.'
+                message: 'No sessionKey was supplied.'
             }
         ));
     }
@@ -50,9 +49,9 @@ const addSentence =  async (req, res) => {
 
 const getSession =  (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    if (req.body.hasOwnProperty('key') === true) {
+    
         try {
-            repository.getSession(req.body.key, (id)=>{
+            repository.getSession((id)=>{
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
@@ -68,15 +67,7 @@ const getSession =  (req, res) => {
                 }
             ));
         }
-    }
-    else {
-        res.end(JSON.stringify(
-            {
-                status: 'ERROR',
-                message: 'No key was supplied.'
-            }
-        ));
-    }
+
 };
 
 module.exports = {

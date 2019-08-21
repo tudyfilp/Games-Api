@@ -4,16 +4,15 @@ class GamesFirebaseRepository extends FirebaseRepository {
     constructor(db,gameKey) {
         super(db, 'games');
         
-        this._gameKey=gameKey;
+        this._gameKey = gameKey;
+
+        this._sessionsPath ="games/" + gameKey + "/sessions";
     }
 
-    getSessionsPath(gameKey){
-        let path = "games/" + gameKey + "/sessions";
-        return path;
-    }
-    async updateSession(gameKey,sessionKey,item){
+   
+    async updateSession(sessionKey,item){
 
-        let path = this.getSessionsPath(gameKey);
+        let path = this._sessionsPath;
 
         let documentRef = this._database.collection(path).doc(sessionKey);
 
@@ -22,27 +21,25 @@ class GamesFirebaseRepository extends FirebaseRepository {
         await documentRef.set(item, {merge: true});
     }
 
-    async addSentence(gameKey,sessionKey){
+    async addSession() {
 
-       let sentence="Indiana";
- 
-       await this.updateSession(gameKey,sessionKey,{generatedSentence:sentence,availablePlaces:4});
-
-       return "added";
-    }
-
-    async addSession(gameKey) {
-
-        let path = this.getSessionsPath(gameKey);
+        let path = this._sessionsPath;
 
         let documentRef = await this._database.collection(path).add({availablePlaces:4});
 
         return documentRef.id;
     }
 
-   async getSession(gameKey,cb) { 
+    async addSessionField(sessionKey,item){
 
-    let path = this.getSessionsPath(gameKey);
+        await this.updateSession(sessionKey,item);
+    
+        return "added";
+     }
+    
+   async getSession(cb) { 
+
+    let path = this._sessionsPath;
 
     this._database.collection(path)
                    .where("availablePlaces",">",0)
