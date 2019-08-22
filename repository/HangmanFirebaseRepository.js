@@ -8,7 +8,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         this._sessionsPath ="games/8jmng49yYAUjO8nyDU03/sessions";
 
-        this._categoriesPath="games/8jmng49yYAUjO8nyDU03/categories";
+        this._phrasesPath="games/8jmng49yYAUjO8nyDU03/phrases";
         
     }
 
@@ -25,9 +25,9 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     async addCategory() {
 
-        let path = this._categoriesPath;
+        let path = this._phrasesPath;
 
-        let documentRef = await this._database.collection(path).add({name:"new category"});
+        let documentRef = await this._database.collection(path).add({magazines: ["hello"]});
 
         return documentRef.id;
     }
