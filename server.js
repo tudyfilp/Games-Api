@@ -28,6 +28,7 @@ app.use(cookieSession({
 }));
 
 app.use(express.static('public'));
+app.use('/gamesThumbnails', express.static('images'));
 
 app.use('/admin', adminRouter);
 
