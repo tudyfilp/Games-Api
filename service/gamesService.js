@@ -15,10 +15,11 @@ const getAllGames = async (req, res) => {
 
     };
 
-const addCategory =  async (req, res) => {
+const setSentences =  async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-            try {
-                let result = await repository.addCategory();
+
+        try {
+                let result = await repository.setSentences("food",["food1","food2"]);
                     res.end(JSON.stringify(
                     {
                         status: 'OK',
@@ -26,6 +27,7 @@ const addCategory =  async (req, res) => {
                     }
                 ));           
             }
+        
             catch(e) {
                 res.end(JSON.stringify(
                     {
@@ -36,11 +38,11 @@ const addCategory =  async (req, res) => {
             }
     };
 
-const addSentence =  async (req, res) => {
+const setSessionField =  async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Indiana", availablePlaces:4});
+            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Harry", availablePlaces:4});
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
@@ -93,7 +95,7 @@ const getSession =  (req, res) => {
 
 module.exports = {
     getSession: getSession,
-    addSentence: addSentence,
+    setSessionField: setSessionField,
     getAllGames: getAllGames,
-    addCategory: addCategory
+    setSentences: setSentences
 };
