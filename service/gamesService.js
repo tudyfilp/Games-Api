@@ -2,7 +2,7 @@ const db = require('../Firebase/Firestore');
 const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
 const repository = new HangmanFirebaseRepository(db);
-//get random sentence from category from database
+
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     let games = await repository.getAll();
