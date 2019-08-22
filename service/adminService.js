@@ -1,5 +1,6 @@
 require('dotenv').config();
 const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
+const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 const db = require('../Firebase/Firestore');
 const saveImage = require('../imageSaver');
 
@@ -30,7 +31,7 @@ const savePhrases = (req, res) => {
 
         let phrases = formatPhrasesText(phrasesText);
         res.send(phrases);
-        // console.log(phrases);
+        new HangmanFirebaseRepository(db).setSentences(categoryName, phrases);
     }
     
 }

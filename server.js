@@ -53,9 +53,11 @@ app.post('/authenticateUser', userService.authenticateUser);
 
 app.post('/getSession', gamesService.getSession);
 
-app.post('/addSentence', gamesService.addSentence);
+app.post('/setSessionField', gamesService.setSessionField);
 
 app.post('/getAllGames', gamesService.getAllGames);
+
+app.post('/setSentences', gamesService.setSentences);
 
 let names = [];
 io.on('connection', (socket) => {

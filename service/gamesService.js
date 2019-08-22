@@ -1,7 +1,7 @@
 const db = require('../Firebase/Firestore');
-const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
+const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
-const repository = new GamesFirebaseRepository(db,"8jmng49yYAUjO8nyDU03");
+const repository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -15,11 +15,34 @@ const getAllGames = async (req, res) => {
 
     };
 
-const addSentence =  async (req, res) => {
+const setSentences =  async (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+
+        try {
+                let result = await repository.setSentences("food",["food1","food2"]);
+                    res.end(JSON.stringify(
+                    {
+                        status: 'OK',
+                        message: result
+                    }
+                ));           
+            }
+        
+            catch(e) {
+                res.end(JSON.stringify(
+                    {
+                        status: 'ERROR',
+                        message: e.message
+                    }
+                ));
+            }
+    };
+
+const setSessionField =  async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.addSessionField(req.body.sessionKey,{generatedSentence:"Harry",availablePlaces:4});
+            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Harry", availablePlaces:4});
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
@@ -72,6 +95,7 @@ const getSession =  (req, res) => {
 
 module.exports = {
     getSession: getSession,
-    addSentence: addSentence,
-    getAllGames: getAllGames
+    setSessionField: setSessionField,
+    getAllGames: getAllGames,
+    setSentences: setSentences
 };

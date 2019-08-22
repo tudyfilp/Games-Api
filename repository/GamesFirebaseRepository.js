@@ -9,7 +9,8 @@ class GamesFirebaseRepository extends FirebaseRepository {
         this._sessionsPath ="games/" + gameKey + "/sessions";
     }
 
-    async updateSession(sessionKey,item){
+   
+    async setSession(sessionKey,item){
 
         let path = this._sessionsPath;
 
@@ -29,25 +30,25 @@ class GamesFirebaseRepository extends FirebaseRepository {
         return documentRef.id;
     }
 
-    async addSessionField(sessionKey,item){
+    async setSessionField(sessionKey,item){
 
-        await this.updateSession(sessionKey,item);
+        await this.setSession(sessionKey,item);
     
         return "added";
      }
     
    async getSession(cb) { 
 
-    let path = this._sessionsPath;
+        let path = this._sessionsPath;
 
-    this._database.collection(path)
+        this._database.collection(path)
                    .where("availablePlaces",">",0)
                    .limit(1)
                    .get()
                    .then((querySnapshot) => {
                         if(querySnapshot.empty === true) 
                         {    
-                            this.addSession(key).then((result)=>cb(result));
+                            this.addSession(this._gameKey).then((result)=>cb(result));
                         }
                        else
                        {  
