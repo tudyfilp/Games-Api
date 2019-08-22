@@ -53,6 +53,12 @@ class FirebaseRepository {
 
         await documentRef.delete();
     }
+
+    async query(field, operator, value) {
+        let values = await this._database.collection(this._collectionName)
+            .where(field, operator, value).get();
+        return values;   
+    }
 }
 
 module.exports = FirebaseRepository;

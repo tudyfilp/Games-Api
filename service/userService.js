@@ -10,6 +10,7 @@ const authenticateUser = async (req, res) => {
     if (req.body.hasOwnProperty('username') === true) {
         try {
             let user = await repository.addUser(req.body.username);
+            
             res.end(JSON.stringify(
                 {
                     status: 'OK',
