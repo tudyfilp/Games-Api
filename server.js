@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 const userService = require('./service/userService');
 const gamesService = require('./service/gamesService');
+const hangmanService = require('./service/hangmanService');
 
 app.use(cors());
 
@@ -59,7 +60,7 @@ app.post('/setSessionField', gamesService.setSessionField);
 
 app.post('/getAllGames', gamesService.getAllGames);
 
-app.post('/setSentences', gamesService.setSentences);
+app.post('/setSentences', hangmanService.setSentences);
 
 let names = [];
 io.on('connection', (socket) => {

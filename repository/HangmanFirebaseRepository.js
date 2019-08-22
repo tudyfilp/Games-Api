@@ -12,16 +12,11 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         
     }
 
-    async setSentences(category,sentences) {
+    async setSentences(category, sentences) {
 
         let path = this._phrasesPath;
 
-        let obj = {};
-        obj[category] = sentences;
-
-        await this._database.collection(path).doc("tv7tz0Hd1OgFW0d1wmXR").set(obj,{merge:true});
-
-        return "tv7tz0Hd1OgFW0d1wmXR";
+        this._database.collection(path).doc(category).set({ sentences } ,{ merge : true });
     }
 
 }

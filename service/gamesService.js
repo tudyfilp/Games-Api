@@ -15,29 +15,6 @@ const getAllGames = async (req, res) => {
 
     };
 
-const setSentences =  async (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-
-        try {
-                let result = await repository.setSentences("food",["food1","food2"]);
-                    res.end(JSON.stringify(
-                    {
-                        status: 'OK',
-                        message: result
-                    }
-                ));           
-            }
-        
-            catch(e) {
-                res.end(JSON.stringify(
-                    {
-                        status: 'ERROR',
-                        message: e.message
-                    }
-                ));
-            }
-    };
-
 const setSessionField =  async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
@@ -97,5 +74,4 @@ module.exports = {
     getSession: getSession,
     setSessionField: setSessionField,
     getAllGames: getAllGames,
-    setSentences: setSentences
 };
