@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+    .form-wrapper {
+        position: absolute;
+        width: 600px;
+        height: 350px;
+        border-radius: 1rem;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, .6);
+    }
+
+    body {
+        background-image: url('/images/admin.jpeg');
+        background-size: 100%;
+        background-repeat: no-repeat;
+     }
+    </style>
+</head>
+<body>
+
+        <div class="container">
+            <div class="form-wrapper">
+                <h2 class="text-center p-4">Admin Login</h2>
+
+                <div class="row">
+                        <form method="post" action="/login" class="col-8 offset-sm-2 mt-5">
+                                <div class="form-group row">
+                                  <div class="offset-sm-1 col-sm-10">
+                                    <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password">
+                                  </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary col-4 offset-sm-4 mt-5">Login</button>
+                        </form>
+
+                </div>
+                  
+
+            </div>
+               
+        </div>
+
+</body>
+</html>
+
+

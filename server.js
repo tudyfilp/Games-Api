@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+var cookieSession = require('cookie-session');
 const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
@@ -13,17 +14,32 @@ const PORT = process.env.PORT || 3000;
 
 const userService = require('./service/userService');
 const gamesService = require('./service/gamesService');
+const adminService = require('./service/adminService');
 
+const path = require('path');
 app.use(cors());
 
 app.use(bodyParser.json());
 app.use(express.urlencoded());
+
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1']
+}));
+
+app.use(express.static('public'));
 
 app.use('/admin', adminRouter);
 
 app.get('/', (req, res) => {
     res.send("Hello there, we've been expecting you");
 });
+
+app.get('/login', (req, res) =>{
+    res.sendFile(path.resolve(__dirname + '/public/admin/adminLogin.html'));
+});
+
+app.post('/login', adminService.loginAdmin)
 
 app.get('/doesUserExist', (req, res) => {
 

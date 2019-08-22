@@ -2,23 +2,24 @@ var router = require('express').Router();
 var path = require('path');
 const multer = require('multer');
 const upload = multer();
+const adminService = require('../service/adminService');
 
-const gameService = require('../service/gamesService');
-
-router.get('/', (req, res) => {
+router.get('/', adminService.isAuth,  (req, res) => {
     res.sendFile(path.resolve(__dirname + '/../public/admin/admin.html'));
 })
 
-router.get('/createGame', (req, res) => {
+router.post('/logout', adminService.logoutAdmin);
+
+router.get('/createGame', adminService.isAuth, (req, res) => {
     res.sendFile(path.resolve(__dirname + '/../public/admin/createGame.html'))
 })
 
-router.post('/createGame', upload.any(), gameService.createGame)
+router.post('/createGame', [upload.any(), adminService.isAuth], adminService.createGame)
 
-router.get('/hangman', (req, res) => {
+router.get('/hangman', adminService.isAuth, (req, res) => {
     res.sendFile(path.resolve(__dirname + '/../public/admin/games/hangman.html'));
 })
 
-router.post('/hangmanPhrases', upload.any(), gameService.savePhrases);
+router.post('/hangmanPhrases', [upload.any(), adminService.isAuth], adminService.savePhrases);
 
 module.exports = router;

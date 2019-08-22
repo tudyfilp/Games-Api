@@ -1,6 +1,5 @@
 const db = require('../Firebase/Firestore');
 const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
-const saveImage = require('../imageSaver');
 
 const repository = new GamesFirebaseRepository(db,"8jmng49yYAUjO8nyDU03");
 
@@ -71,46 +70,8 @@ const getSession =  (req, res) => {
 
 };
 
-const createGame = async (req, res) => {
-
-    let gamesRepo = new GamesFirebaseRepository(db);
-
-    let gameKey = await gamesRepo.add({
-        name: req.body.name
-    });
-
-    if(req.files.length > 0){
-        saveImage(req.files[0], gameKey);
-        res.send(JSON.stringify('New Game Saved Successfully'));
-    } else {
-        res.send(JSON.stringify("Game added sucesfully but no game thumbnail has been provided"));
-    }
-    
-}
-
-const savePhrases = (req, res) => {
-    if(req.files.length > 0){
-        
-        let file = req.files[0];
-        let phrasesText = file.buffer;
-
-        let categoryName = file.originalname.split('.')[0];
-
-        let phrases = formatPhrasesText(phrasesText);
-
-        console.log(phrases);
-    }
-    
-}
-
-const formatPhrasesText = (txt) => {
-     return txt.toString().split('\n').map(phrase => phrase.trim().replace(/\r/g, '')).filter(phrase => phrase != '');
-}
-
 module.exports = {
     getSession: getSession,
     addSentence: addSentence,
-    getAllGames: getAllGames,
-    createGame,
-    savePhrases
+    getAllGames: getAllGames
 };
