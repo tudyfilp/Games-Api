@@ -38,7 +38,7 @@ class FirebaseRepository {
 
         return documentRef.id;
     }
-
+    
     async update(item) {
         let documentRef = this._database.collection(this._collectionName).doc(item.id);
 

@@ -1,58 +1,57 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+var cookieSession = require('cookie-session');
 const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
-io.origins('*:*');
+var adminRouter = require('./routers/admin');
 
-var NewUserValidator = require('./Firebase/NewUserValidator.js');
+io.origins('*:*');
 
 const PORT = process.env.PORT || 3000;
 
 const userService = require('./service/userService');
+const gamesService = require('./service/gamesService');
+const adminService = require('./service/adminService');
 
+const path = require('path');
 app.use(cors());
-
-// app.use(cors({
-//     origin: function(origin, callback){
-//         // allow requests with no origin 
-//         // (like mobile apps or curl requests)
-//         var allowedOrigins = ['http://localhost:8080', 'http://localhost:3000'];
-
-//         if(!origin) {
-//             return callback(null, true);
-//         }
-
-//         if(allowedOrigins.indexOf(origin) === -1){
-//             var msg = 'The CORS policy for this site does not ' +
-//                 'allow access from the specified Origin.';
-//             return callback(new Error(msg), false);
-//         }
-
-//         return callback(null, true);
-//     }
-// }));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1']
+}));
+
+app.use(express.static('public'));
+app.use('/gamesThumbnails', express.static('images'));
+
+app.use('/admin', adminRouter);
+
 app.get('/', (req, res) => {
-    console.log('New req');
     res.send("Hello there, we've been expecting you");
 });
 
-// app.get('/doesUserExist', (req, res) => {
+app.get('/login', (req, res) =>{
+    res.sendFile(path.resolve(__dirname + '/public/admin/adminLogin.html'));
+});
 
-//     let username = req.body.username;
-
-//     NewUserValidator.isValidUsername(username).then(result => 
-//         res.send(result)).catch(err => res.send(err));
-// });
+app.post('/login', adminService.loginAdmin)
 
 app.post('/authenticateUser', userService.authenticateUser);
+
+app.post('/getSession', gamesService.getSession);
+
+app.post('/setSessionField', gamesService.setSessionField);
+
+app.get('/getAllGames', gamesService.getAllGames);
+
+app.post('/setSentences', gamesService.setSentences);
 
 let names = [];
 io.on('connection', (socket) => {
