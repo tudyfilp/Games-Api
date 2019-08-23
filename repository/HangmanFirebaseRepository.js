@@ -1,4 +1,5 @@
 const GamesFirebaseRepository = require('./GamesFirebaseRepository');
+const HangmanModel = require('../model/HangmanModel');
 
 class HangmanFirebaseRepository extends GamesFirebaseRepository {
     constructor(db) {
@@ -9,7 +10,12 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this._sessionsPath ="games/8jmng49yYAUjO8nyDU03/sessions";
 
         this._phrasesPath="games/8jmng49yYAUjO8nyDU03/phrases";
-        
+
+        this.model = new HangmanModel();
+    }
+
+    async addSession() {
+        super.addSession(this.model.session);
     }
 
     async setSentences(category, sentences) {

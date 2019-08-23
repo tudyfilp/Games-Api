@@ -21,11 +21,11 @@ class GamesFirebaseRepository extends FirebaseRepository {
         await documentRef.set(item, {merge: true});
     }
 
-    async addSession() {
+    async addSession(session) {
 
         let path = this._sessionsPath;
 
-        let documentRef = await this._database.collection(path).add({availablePlaces:4});
+        let documentRef = await this._database.collection(path).add(session);
 
         return documentRef.id;
     }
@@ -48,7 +48,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
                    .then((querySnapshot) => {
                         if(querySnapshot.empty === true) 
                         {    
-                            this.addSession(this._gameKey).then((result)=>cb(result));
+                            this.addSession().then((result)=>cb(result));
                         }
                        else
                        {  
