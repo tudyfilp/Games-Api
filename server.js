@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
 var NewUserValidator = require('./Firebase/NewUserValidator.js');
 var adminRouter = require('./routers/admin');
+require('custom-env').env(true);
 
 io.origins('*:*');
 
@@ -67,8 +68,6 @@ io.on('connection', (socket) => {
 
     socket.on('addName', (name) => {
         names.push(name);
-
-        console.log(names);
         
         io.emit('nameChange', names);
     });
@@ -83,4 +82,5 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);
+    console.log(process.env.ADMIN_PASSWORD);
 });
