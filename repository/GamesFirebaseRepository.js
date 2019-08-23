@@ -9,6 +9,17 @@ class GamesFirebaseRepository extends FirebaseRepository {
         this._sessionsPath ="games/" + gameKey + "/sessions";
     }
 
+    async getGameData(gameId) {
+        let gameData = await this.getItemById(gameId);
+
+        if (gameData === undefined) {
+            throw new Error('No game could be found.');
+        }
+
+        gameData.id = gameId;
+        
+        return gameData;
+    }
    
     async setSession(sessionKey,item){
 

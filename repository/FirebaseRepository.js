@@ -20,9 +20,13 @@ class FirebaseRepository {
             items.push(item);
         });
 
-        //console.log(snapshot);
-
         return items;
+    }
+
+    async getItemById(id) {
+        let itemData = await this._database.collection(this._collectionName).doc(id).get();
+
+        return itemData.data();
     }
 
     async deleteAll() {

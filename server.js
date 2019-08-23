@@ -51,6 +51,8 @@ app.post('/setSessionField', gamesService.setSessionField);
 
 app.get('/getAllGames', gamesService.getAllGames);
 
+app.post('/getGameData', gamesService.getGameData);
+
 app.post('/setSentences', gamesService.setSentences);
 
 let names = [];
