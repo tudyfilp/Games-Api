@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 const userService = require('./service/userService');
 const gamesService = require('./service/gamesService');
 const adminService = require('./service/adminService');
+const hangmanService = require('./service/hangmanService');
 
 const path = require('path');
 app.use(cors());
@@ -53,13 +54,16 @@ app.get('/doesUserExist', (req, res) => {
 
 app.post('/authenticateUser', userService.authenticateUser);
 
-app.post('/getSession', gamesService.getSession);
+app.post('/getSession', (req, res) => {
+    console.log(req.body.gameId);
+});
 
 app.post('/setSessionField', gamesService.setSessionField);
 
 app.post('/getAllGames', gamesService.getAllGames);
 
-app.post('/setSentences', gamesService.setSentences);
+app.post('/setSentences', hangmanService.setSentences);
+
 
 let names = [];
 io.on('connection', (socket) => {
@@ -82,5 +86,4 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);
-    console.log(process.env.ADMIN_PASSWORD);
 });
