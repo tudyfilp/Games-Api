@@ -5,7 +5,7 @@ class MemoryCardsModel{
           availablePlaces:4,
           gameEnded:false,
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
-          activeUser: ""
+          activeUser: "",
           users: {}
         }
     

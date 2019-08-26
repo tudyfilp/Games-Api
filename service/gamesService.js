@@ -2,7 +2,7 @@ const db = require('../Firebase/Firestore');
 const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
 const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
-const repository = new HangmanFirebaseRepository(db);
+const repository = new GamesFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -110,9 +110,9 @@ const setSessionField =  async (req, res) => {
 
 const getSession =  (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    
+    if (req.body.hasOwnProperty('gameKey') === true) {
         try {
-            repository.getSession((id)=>{
+            repository.getSession(req.body.gameKey,(id)=>{
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
@@ -120,6 +120,7 @@ const getSession =  (req, res) => {
                 }
             ));});            
         }
+   
         catch(e) {
             res.end(JSON.stringify(
                 {
@@ -128,7 +129,15 @@ const getSession =  (req, res) => {
                 }
             ));
         }
-
+    }
+    else {
+        res.end(JSON.stringify(
+            {
+                status: 'ERROR',
+                message: 'No sessionKey was supplied.'
+            }
+        ));
+    }
 };
 
 module.exports = {

@@ -1,21 +1,18 @@
 var firebase = require('firebase/app');
 require('firebase/firestore');
 
-class HangmanModel{
+class GameModel{
     constructor(){
 
         this.session = {
           availablePlaces:4,
           gameEnded:false,
-          phrase:"",
-          guessedLetters:[],
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
           activeUser: "",
-          users: {} /// key: score
+          users: {} 
         }
-      this.nrOfLivesPerActiveUser = 4;
     }
 
 }
 
-module.exports = HangmanModel;
+module.exports = GameModel;

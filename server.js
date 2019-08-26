@@ -5,7 +5,9 @@ var cookieSession = require('cookie-session');
 const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
+require('./sockets/socket')(io);
 var adminRouter = require('./routers/admin');
+var sessionRouter = require('./routers/session');
 require('custom-env').env(true);
 
 io.origins('*:*');
@@ -34,6 +36,7 @@ app.use(express.static('public'));
 app.use('/gamesThumbnails', express.static('images'));
 
 app.use('/admin', adminRouter);
+app.use('/getSession', sessionRouter);
 
 app.get('/', (req, res) => {
     res.send("Hello there, we've been expecting you");
@@ -47,10 +50,6 @@ app.post('/login', adminService.loginAdmin)
 
 app.post('/authenticateUser', userService.authenticateUser);
 
-app.post('/getSession', (req, res) => {
-    console.log(req.body.gameId);
-});
-
 app.post('/setSessionField', gamesService.setSessionField);
 
 app.get('/getAllGames', gamesService.getAllGames);
@@ -59,18 +58,7 @@ app.post('/getGameData', gamesService.getGameData);
 
 app.post('/setSentences', hangmanService.setSentences);
 
-
 let names = [];
-io.on('connection', (socket) => {
-
-    // setInterval(() => {
-    //     socket.emit('receivedMessage', {message: 'Message from Server', sender: 'server'});
-    // }, 3000);
-    
-    socket.on('newMessage', (message) => {
-        socket.broadcast.emit('receivedMessage', {message, sender:'not_me'});
-    });
-});
 
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);
