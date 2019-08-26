@@ -58,8 +58,6 @@ app.post('/getGameData', gamesService.getGameData);
 
 app.post('/setSentences', hangmanService.setSentences);
 
-let names = [];
-
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);
 });

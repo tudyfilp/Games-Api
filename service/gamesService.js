@@ -3,6 +3,7 @@ const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository')
 const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
 const repository = new GamesFirebaseRepository(db);
+const hangmanRepository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -74,21 +75,22 @@ const setSentences =  async (req, res) => {
             }
         ));
     }
-};
 
-const setSessionField =  async (req, res) => {
+}
+
+const setSessionField = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Harry", availablePlaces:4});
-                res.end(JSON.stringify(
+            let result = await repository.setSessionField(req.body.sessionKey, { phrase: "Harry", availablePlaces: 4 });
+            res.end(JSON.stringify(
                 {
                     status: 'OK',
                     message: result
                 }
-            ));           
+            ));
         }
-        catch(e) {
+        catch (e) {
             res.end(JSON.stringify(
                 {
                     status: 'ERROR',
@@ -107,16 +109,19 @@ const setSessionField =  async (req, res) => {
     }
 };
 
-
-const getSession =  (req, res) => {
+const getSession = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('gameKey') === true) {
         try {
-            repository.getSession(req.body.gameKey,(id)=>{
+            repository.getSession(req.body.gameKey, async (session)=>{
+
+                if(session === null){
+                    session = await hangmanRepository.addSession();
+                }
                 res.end(JSON.stringify(
                 {
                     status: 'OK',
-                    message: id
+                    message: session
                 }
             ));});            
         }
@@ -134,7 +139,7 @@ const getSession =  (req, res) => {
         res.end(JSON.stringify(
             {
                 status: 'ERROR',
-                message: 'No sessionKey was supplied.'
+                message: 'No gameKey was supplied.'
             }
         ));
     }
