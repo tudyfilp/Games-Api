@@ -6,6 +6,7 @@ const repository = new GamesFirebaseRepository(db);
 const hangmanRepository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
+    hangmanRepository.addUser("userKey3","ShvRKJckl57Oz5X1v12p");
     res.setHeader('Content-Type', 'application/json');
     let games = await repository.getAll();
     res.end(JSON.stringify(
