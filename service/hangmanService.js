@@ -122,9 +122,14 @@ const increaseScore =  async (req, res) => {
     }
 };
 
+const getSession = (req, res) => {
+    repository.addSession().then((id) => res.send(id));
+}
+
 module.exports = {
     setSentences,
     getPhrase,
     checkLetter,
-    increaseScore
+    increaseScore,
+    getSession
 };

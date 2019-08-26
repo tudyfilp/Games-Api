@@ -5,10 +5,13 @@ class HangmanModel{
     constructor(){
 
         this.session = {
-          availablePlaces:4,
-          gameEnded:false,
-          phrase:"",
-          guessedLetters:[],
+          availablePlaces: 4,
+          gameEnded: false,
+          phrase: "",
+          completedPhrase: [],
+          phraseLetters: {},
+          phraseCategory: "",
+          guessedLetters: [],
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
           activeUser: "",
           users: {} /// key: score
