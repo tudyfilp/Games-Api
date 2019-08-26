@@ -46,7 +46,8 @@ class GamesFirebaseRepository extends FirebaseRepository {
                    .then((querySnapshot) => {
                         if(querySnapshot.empty === true) 
                         {    
-                            this.addSession(gameKey,this.model.session).then((result)=>cb(result));
+                            //this.addSession(gameKey,this.model.session).then((result)=>cb(result));
+                            cb(null);
                         }
                        else
                        {  

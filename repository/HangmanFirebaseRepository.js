@@ -15,7 +15,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     } 
 
     async addSession() {
-        super.addSession(this.model.session);
+        super.addSession(this._gameKey,this.model.session);
     }
 
     async setSentences(category, sentences) {

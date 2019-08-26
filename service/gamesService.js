@@ -1,7 +1,9 @@
 const db = require('../Firebase/Firestore');
 const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository');
+const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
 const repository = new GamesFirebaseRepository(db);
+const hangmanRepository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -11,23 +13,23 @@ const getAllGames = async (req, res) => {
             status: 'OK',
             message: games
         }
-        ));           
+    ));
 
-    };
+};
 
-const setSessionField =  async (req, res) => {
+const setSessionField = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('sessionKey') === true) {
         try {
-            let result = await repository.setSessionField(req.body.sessionKey,{phrase: "Harry", availablePlaces:4});
-                res.end(JSON.stringify(
+            let result = await repository.setSessionField(req.body.sessionKey, { phrase: "Harry", availablePlaces: 4 });
+            res.end(JSON.stringify(
                 {
                     status: 'OK',
                     message: result
                 }
-            ));           
+            ));
         }
-        catch(e) {
+        catch (e) {
             res.end(JSON.stringify(
                 {
                     status: 'ERROR',
@@ -47,20 +49,26 @@ const setSessionField =  async (req, res) => {
 };
 
 
-const getSession =  (req, res) => {
+const getSession = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('gameKey') === true) {
         try {
-            repository.getSession(req.body.gameKey,(id)=>{
-                res.end(JSON.stringify(
-                {
-                    status: 'OK',
-                    message: id
+            repository.getSession(req.body.gameKey, (id) => {
+                if (id) {
+                    res.end(JSON.stringify(
+                        {
+                            status: 'OK',
+                            message: id
+                        }
+                    ));
                 }
-            ));});            
+                else {
+                hangmanRepository.addSession();
+                }
+            });
         }
-   
-        catch(e) {
+
+        catch (e) {
             res.end(JSON.stringify(
                 {
                     status: 'ERROR',
