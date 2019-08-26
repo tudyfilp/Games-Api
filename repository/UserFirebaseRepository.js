@@ -7,6 +7,19 @@ class UserFirebaseRepository extends FirebaseRepository {
         this._validator = userValidator;
     }
 
+    async usernameExists(username) {
+        let users = await this.query("username", "==", username);
+
+        return users.size > 0;
+    }
+
+    async getUserIdByName(username) {
+        let users = await this.query("username", "==", username);
+        //console.log(users.docs[0].id);
+
+        return users.docs[0].id;
+    }
+
     async addUser(username) {
 
         if (this._validator.isUsernameValid(username) === true) {
@@ -14,7 +27,16 @@ class UserFirebaseRepository extends FirebaseRepository {
                 username: username
             };
 
-            let userId = await this.add(user);
+            let userId = null;
+            
+            if (await this.usernameExists(username) === true) {
+                userId = await this.getUserIdByName(username);
+            }
+            else {
+                userId = await this.add(user);
+            }
+
+            //console.log(userId);
 
             user.id = userId;
 

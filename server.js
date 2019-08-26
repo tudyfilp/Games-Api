@@ -5,7 +5,6 @@ var cookieSession = require('cookie-session');
 const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
-var NewUserValidator = require('./Firebase/NewUserValidator.js');
 var adminRouter = require('./routers/admin');
 require('custom-env').env(true);
 
@@ -22,7 +21,9 @@ const path = require('path');
 app.use(cors());
 
 app.use(bodyParser.json());
-app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 app.use(cookieSession({
     name: 'session',
@@ -44,14 +45,6 @@ app.get('/login', (req, res) =>{
 
 app.post('/login', adminService.loginAdmin)
 
-app.get('/doesUserExist', (req, res) => {
-
-    let username = req.body.username;
-
-    NewUserValidator.isValidUsername(username).then(result => 
-        res.send(result)).catch(err => res.send(err));
-});
-
 app.post('/authenticateUser', userService.authenticateUser);
 
 app.post('/getSession', (req, res) => {
@@ -60,7 +53,9 @@ app.post('/getSession', (req, res) => {
 
 app.post('/setSessionField', gamesService.setSessionField);
 
-app.post('/getAllGames', gamesService.getAllGames);
+app.get('/getAllGames', gamesService.getAllGames);
+
+app.post('/getGameData', gamesService.getGameData);
 
 app.post('/setSentences', hangmanService.setSentences);
 
@@ -68,20 +63,13 @@ app.post('/setSentences', hangmanService.setSentences);
 let names = [];
 io.on('connection', (socket) => {
 
-    socket.emit('nameChange', names);
-
-    socket.on('addName', (name) => {
-        names.push(name);
-        
-        io.emit('nameChange', names);
+    // setInterval(() => {
+    //     socket.emit('receivedMessage', {message: 'Message from Server', sender: 'server'});
+    // }, 3000);
+    
+    socket.on('newMessage', (message) => {
+        socket.broadcast.emit('receivedMessage', {message, sender:'not_me'});
     });
-
-    socket.on('deleteName', (index) => {
-        names.splice(index, 1);
-
-        io.emit('nameChange', names);
-    });
-    //console.log(socket);
 });
 
 server.listen(PORT, () => {
