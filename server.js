@@ -64,10 +64,6 @@ app.post('/setSentences', hangmanService.setSentences);
 
 app.post('/getPhrase', hangmanService.getPhrase);
 
-app.post('/checkLetter', hangmanService.checkLetter);
-
-app.post('/increaseScore', hangmanService.increaseScore);
-
 let names = [];
 io.on('connection', (socket) => {
 

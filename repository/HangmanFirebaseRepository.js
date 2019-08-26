@@ -14,8 +14,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this.model = new HangmanModel();
     } 
 
-    async addSession() {
-        super.addSession(this._gameKey,this.model.session);
+    async addSession() { 
+        return await super.addSession(this._gameKey,this.model.session);
     }
 
     async setSentences(category, sentences) {
@@ -30,22 +30,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return docRef.data().phrase;
    }
 
-   async checkLetter(sessionKey,letter) { 
-       let phrase = await this.getPhrase(sessionKey);
-       let result = phrase.search(letter);
-       if(result == -1){
-           return false;
-       }
-       return true;
-    }
-
-   async increaseScore(userKey,letter) { 
-    //  let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
-
-    //  console.log(docRef.data().phrase);
-
-     return true;
-     }
 }
 
 module.exports = HangmanFirebaseRepository;

@@ -48,27 +48,24 @@ const setSessionField = async (req, res) => {
     }
 };
 
-
 const getSession = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (req.body.hasOwnProperty('gameKey') === true) {
         try {
-            repository.getSession(req.body.gameKey, (id) => {
-                if (id) {
-                    res.end(JSON.stringify(
-                        {
-                            status: 'OK',
-                            message: id
-                        }
-                    ));
-                }
-                else {
-                hangmanRepository.addSession();
-                }
-            });
-        }
+            repository.getSession(req.body.gameKey, async (session)=>{
 
-        catch (e) {
+                if(session === null){
+                    session = await hangmanRepository.addSession();
+                }
+                res.end(JSON.stringify(
+                {
+                    status: 'OK',
+                    message: session
+                }
+            ));});            
+        }
+   
+        catch(e) {
             res.end(JSON.stringify(
                 {
                     status: 'ERROR',
@@ -81,7 +78,7 @@ const getSession = (req, res) => {
         res.end(JSON.stringify(
             {
                 status: 'ERROR',
-                message: 'No sessionKey was supplied.'
+                message: 'No gameKey was supplied.'
             }
         ));
     }
