@@ -13,7 +13,9 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         this.model = new HangmanModel();
     }
-
+    async getSession(cb) {
+        return await super.getSession(this._gameKey,cb);
+    }
     async addSession() {
         return await super.addSession(this._gameKey, this.model.session);
     }
@@ -39,13 +41,14 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return true;
     }
 
-   async addUser(userKey,sessionKey){
+    async addUser(userKey, sessionKey) {
         let path = this._sessionsPath;
-        let user ={};
-        user[userKey]={score:0};
+        let user = {};
+        user[userKey] = { lives: 4, score: 0 };
 
-        this._database.collection(path).doc(sessionKey).set({users: user }, { merge: true });
-   }
+        this._database.collection(path).doc(sessionKey).set({ users: user }, { merge: true });
+    }
+
 }
 
 module.exports = HangmanFirebaseRepository;

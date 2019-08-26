@@ -6,7 +6,7 @@ const repository = new GamesFirebaseRepository(db);
 const hangmanRepository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
-    hangmanRepository.addUser("userKey3","ShvRKJckl57Oz5X1v12p");
+    
     res.setHeader('Content-Type', 'application/json');
     let games = await repository.getAll();
     res.end(JSON.stringify(
@@ -49,44 +49,7 @@ const setSessionField = async (req, res) => {
     }
 };
 
-const getSession = (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    if (req.body.hasOwnProperty('gameKey') === true) {
-        try {
-            repository.getSession(req.body.gameKey, async (session)=>{
-
-                if(session === null){
-                    session = await hangmanRepository.addSession();
-                }
-                res.end(JSON.stringify(
-                {
-                    status: 'OK',
-                    message: session
-                }
-            ));});            
-        }
-   
-        catch(e) {
-            res.end(JSON.stringify(
-                {
-                    status: 'ERROR',
-                    message: e.message
-                }
-            ));
-        }
-    }
-    else {
-        res.end(JSON.stringify(
-            {
-                status: 'ERROR',
-                message: 'No gameKey was supplied.'
-            }
-        ));
-    }
-};
-
 module.exports = {
-    getSession: getSession,
     setSessionField: setSessionField,
     getAllGames: getAllGames,
 };

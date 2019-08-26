@@ -54,8 +54,6 @@ app.get('/doesUserExist', (req, res) => {
 
 app.post('/authenticateUser', userService.authenticateUser);
 
-app.post('/getSession', gamesService.getSession);
-
 app.post('/setSessionField', gamesService.setSessionField);
 
 app.post('/getAllGames', gamesService.getAllGames);
