@@ -1,18 +1,16 @@
 const FirebaseRepository = require('./FirebaseRepository');
+const GameModel = require('../model/GameModel');
 
 class GamesFirebaseRepository extends FirebaseRepository {
-    constructor(db,gameKey) {
+    constructor(db) {
         super(db, 'games');
-        
-        this._gameKey = gameKey;
-
-        this._sessionsPath ="games/" + gameKey + "/sessions";
+        this.model = new GameModel();
     }
 
    
-    async setSession(sessionKey,item){
+    async setSession(gameKey,sessionKey,item){
 
-        let path = this._sessionsPath;
+        let path = "games/" + gameKey + "/sessions";
 
         let documentRef = this._database.collection(path).doc(sessionKey);
 
@@ -21,25 +19,25 @@ class GamesFirebaseRepository extends FirebaseRepository {
         await documentRef.set(item, {merge: true});
     }
 
-    async addSession(session) {
+    async addSession(gameKey,session) {
 
-        let path = this._sessionsPath;
+        let path = "games/" + gameKey + "/sessions";
 
         let documentRef = await this._database.collection(path).add(session);
 
         return documentRef.id;
     }
 
-    async setSessionField(sessionKey,item){
+    async setSessionField(gameKey,sessionKey,item){
 
-        await this.setSession(sessionKey,item);
+        await this.setSession(gameKey,sessionKey,item);
     
         return "added";
      }
     
-   async getSession(cb) { 
+   async getSession(gameKey,cb) { 
 
-        let path = this._sessionsPath;
+       let path = "games/" + gameKey + "/sessions";
 
         this._database.collection(path)
                    .where("availablePlaces",">",0)
@@ -48,7 +46,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
                    .then((querySnapshot) => {
                         if(querySnapshot.empty === true) 
                         {    
-                            this.addSession().then((result)=>cb(result));
+                            this.addSession(gameKey,this.model.session).then((result)=>cb(result));
                         }
                        else
                        {  
