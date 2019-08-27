@@ -61,8 +61,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         session.completedPhrase = completedPhrase;
     }
-    async getSession(cb) {
-        return await super.getSession(this._gameKey, cb);
+    getSession(cb) {
+        return super.getSession(this._gameKey, cb);
     }
     async addSession() {
         return await super.addSession(this._gameKey, this.model.session);

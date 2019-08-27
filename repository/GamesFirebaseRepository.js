@@ -47,7 +47,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
         return "added";
      }
     
-   async getSession(gameKey,cb) { 
+   getSession(gameKey,cb) { 
        let path = "games/" + gameKey + "/sessions";
 
        this._database.collection(path)
@@ -61,7 +61,9 @@ class GamesFirebaseRepository extends FirebaseRepository {
                         }
                        else
                        {   
-                           cb(querySnapshot.docs[0].data()) ;
+                           cb({sessionData: querySnapshot.docs[0].data(),
+                                sessionId: querySnapshot.docs[0].id
+                            }) ;
                        }
 
                    });

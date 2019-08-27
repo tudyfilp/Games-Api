@@ -1,7 +1,13 @@
 var router = require('express').Router();
+const HangmanRepo = require('../repository/HangmanFirebaseRepository');
+const db = require('../Firebase/Firestore');
+var repo = new HangmanRepo(db);
 
 router.post('/hangman', (req, res) => {
-    res.send(JSON.stringify('cevaKeyRandom'));
+    repo.getSession((sessionData) => {
+        res.send(JSON.stringify(sessionData));
+    });
+    
 }); 
 
 
