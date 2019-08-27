@@ -14,7 +14,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this.model = new HangmanModel();
     }
     async getSession(cb) {
-        return await super.getSession(this._gameKey,cb);
+        return await super.getSession(this._gameKey, cb);
     }
     async addSession() {
         return await super.addSession(this._gameKey, this.model.session);
@@ -30,6 +30,12 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     async getPhrase(sessionKey) {
         let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
         return docRef.data().phrase;
+    }
+
+    async getSessionByKey(sessionKey) {
+        let path = "games/" + this._gameKey + "/sessions";
+
+        return await this._database.collection(path).doc(sessionKey).get().then((session) => { return session.data() });
     }
 
     async checkLetter(sessionKey, letter) {
@@ -48,7 +54,26 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         this._database.collection(path).doc(sessionKey).set({ users: user }, { merge: true });
     }
+    async getUserInfo(userKey, sessionKey) {
+        let path = this._sessionsPath;
 
+        return await this._database.collection(path).doc(sessionKey).get().then((d) => { return d.data().users[userKey] });
+    }
+
+    async increaseScore(userKey, sessionKey) {
+        let path = this._sessionsPath;
+        //getUserInfo
+        let user = {};
+        let obj = {};
+        obj.lives = 4;
+        obj.score = 0;
+        user[userKey] = obj;
+        console.log(JSON.stringify(user));
+        this._database.collection(path).doc(sessionKey).set({ users: user }, { merge: true });
+    }
+    async decreaseLives(userKey, sessionKey) {
+
+    }
 }
 
 module.exports = HangmanFirebaseRepository;
