@@ -5,12 +5,12 @@ var cookieSession = require('cookie-session');
 const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(server);
-require('./sockets/socket')(io);
 var adminRouter = require('./routers/admin');
 var sessionRouter = require('./routers/session');
 require('custom-env').env(true);
 
 io.origins('*:*');
+require('./sockets/socket')(io);
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,6 +21,11 @@ const hangmanService = require('./service/hangmanService');
 
 const path = require('path');
 app.use(cors());
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -57,8 +62,6 @@ app.get('/getAllGames', gamesService.getAllGames);
 app.post('/getGameData', gamesService.getGameData);
 
 app.post('/setSentences', hangmanService.setSentences);
-
-app.get('/getSession', hangmanService.getSession);
 
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);

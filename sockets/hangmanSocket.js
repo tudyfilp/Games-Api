@@ -1,6 +1,6 @@
-module.exports = function(io, socket, getSocketSession) {
+module.exports = function(io, getSocketSession) {
 
-    socket.on('letterSumitted', letter => {
-        console.log(letter);
+    io.of('/hangman').on('connection', socket => {
+        console.log('new hangman connection');
     });
 }
