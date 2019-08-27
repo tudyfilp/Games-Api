@@ -55,13 +55,9 @@ app.post('/login', adminService.loginAdmin)
 
 app.post('/authenticateUser', userService.authenticateUser);
 
-app.post('/setSessionField', gamesService.setSessionField);
-
 app.get('/getAllGames', gamesService.getAllGames);
 
 app.post('/getGameData', gamesService.getGameData);
-
-app.post('/setSentences', hangmanService.setSentences);
 
 server.listen(PORT, () => {
     console.log('Listening on port: ' + PORT);

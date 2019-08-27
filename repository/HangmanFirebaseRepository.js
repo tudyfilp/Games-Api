@@ -61,6 +61,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         session.completedPhrase = completedPhrase;
     }
+    
     getSession(cb) {
         return super.getSession(this._gameKey, cb);
     }
@@ -205,6 +206,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         }
         return false;
     }
+    
     async increaseScore(userKey, sessionKey, letter) {
         let path = this._sessionsPath;
 
@@ -236,7 +238,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
 
     async registerLetter(userKey, sessionKey, letter) {
-
+        
         if (await (this.isGameEnded(sessionKey)) === false) {
             if (await (this.isLetterGuessed(sessionKey, letter)) === false) {
                 if (await (this.checkLetter(sessionKey, letter)) === true) {

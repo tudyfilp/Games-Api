@@ -1,14 +1,6 @@
 var router = require('express').Router();
-const HangmanRepo = require('../repository/HangmanFirebaseRepository');
-const db = require('../Firebase/Firestore');
-var repo = new HangmanRepo(db);
+const hangmanService = require('../service/hangmanService');
 
-router.post('/hangman', (req, res) => {
-    repo.getSession((sessionData) => {
-        res.send(JSON.stringify(sessionData));
-    });
-    
-}); 
-
+router.post('/hangman', hangmanService.getSession); 
 
 module.exports = router;
