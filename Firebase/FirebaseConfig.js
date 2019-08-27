@@ -1,5 +1,5 @@
 module.exports = {
-    apiKey: "AIzaSyD75fgu5moVqE3jLDvhgO9-9Uv1-u34Kok",
+    apiKey: process.env.FIREBASE_API_KEY,
     authDomain: "games-app-cd424.firebaseapp.com",
     databaseURL: "https://games-app-cd424.firebaseio.com",
     projectId: "games-app-cd424",
