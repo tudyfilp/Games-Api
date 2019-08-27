@@ -9,8 +9,8 @@ var adminRouter = require('./routers/admin');
 var sessionRouter = require('./routers/session');
 require('custom-env').env(true);
 
-// io.origins('*:*');
 require('./sockets/socket')(io);
+// require('./sockets/hangmanSocket')(io);
 
 const PORT = process.env.PORT || 3000;
 

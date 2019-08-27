@@ -3,7 +3,6 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 
 const repository = new HangmanFirebaseRepository(db);
 
-
 const setSentences = async (req, res) => {
 
     res.setHeader('Content-Type', 'application/json');
