@@ -2,15 +2,16 @@ const GamesFirebaseRepository = require('./GamesFirebaseRepository');
 const HangmanModel = require('../model/HangmanModel');
 const getRandomItem = require('../utilities/getRandomItem');
 const isLetter = require('../utilities/isLetter');
+
 class HangmanFirebaseRepository extends GamesFirebaseRepository {
     constructor(db) {
         super(db, 'games');
 
-        this._gameKey = "8jmng49yYAUjO8nyDU03";
+        this._gameKey = "78mzQLCv5fF6I1K1TnJU";
 
-        this._sessionsPath = "games/8jmng49yYAUjO8nyDU03/sessions";
+        this._sessionsPath = `games/${this._gameKey}/sessions`;
 
-        this._phrasesPath = "games/8jmng49yYAUjO8nyDU03/phrases";
+        this._phrasesPath = `games/${this._gameKey}/phrases`;
 
         this.model = new HangmanModel();
     } 
