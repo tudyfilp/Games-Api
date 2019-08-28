@@ -1,28 +1,55 @@
 let hangmanService = require('../service/hangmanService');
 let gamesService = require('../service/gamesService');
 
-module.exports = function(io, getSession) {
+const isNewSession = (gameData, sessionKey) => {
+    return !gameData.hasOwnProperty(sessionKey);
+}
+
+const createSession = async (gameData, sessionKey) => {
+    gameData[sessionKey] = {};
+    let session = await hangmanService.getSessionByKey(sessionKey);
+    gameData[sessionKey].data = session.data;
+    gameData[sessionKey].messages = [];
+}
+
+const getSessionDetailsForClient = (gameData, sessionKey) => {
+    if(!gameData.hasOwnProperty(sessionKey)) 
+        throw new Error('No session has been found for the given key');
+    
+    let sessionData = gameData[sessionKey].data;
+    
+    delete sessionData.phrase;
+    delete sessionData.phraseLetters;
+
+    return {
+        data: sessionData,
+        messages: gameData[sessionKey].messages
+    }
+    
+}
+
+module.exports = function(io, getSession, gameData) {
 
     io.of('/hangman').on('connection', socket => {
-        let roomName = socket.handshake.query.roomName;
+        
+        let sessionName = socket.handshake.query.roomName;
         let userId = socket.handshake.query.userId;
-        console.log(`hello, there ${userId}!`);
-        socket.join(roomName, () => {
 
-            hangmanService.addUserToSession(userId, roomName);
+        if(isNewSession(gameData, sessionName)) 
+            createSession(gameData, sessionName);
+
+        socket.join(sessionName, () => {
+
+            hangmanService.addUserToSession(userId, sessionName);
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession);
-            const gameSocketService = gamesService.getGamesSocketService(socket, getSession);
+            const gameSocketService = gamesService.getGamesSocketService(socket, getSession, gameData[sessionName].messages);
 
             socket.on('newMessage', gameSocketService.handleChat);
 
             socket.on('letterPressed', hangmanSocketService.letterPressed);
 
         });
-
-        socket.on('disconnect', () => {
-            console.log('whoops, someone just left');
-        })
         
     });
 }

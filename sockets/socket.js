@@ -2,11 +2,11 @@ var getSession = (socket) => {
         return Object.keys(socket.rooms)[1];
 }
 
-var joinSession = (socket, sessionId) => {
-        socket.join(sessionId);
+var serverData = {
+        hangman: {}
 }
 
 module.exports = function(io) {
 
-        require('./hangmanSocket')(io, getSession);
+        require('./hangmanSocket')(io, getSession, serverData.hangman);
 }

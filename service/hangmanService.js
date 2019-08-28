@@ -50,8 +50,13 @@ const getHangmanSocketService = (socket, getSession) => {
     }
 }
 
+const getSessionByKey = async (sessionKey) => {
+    return await repository.getSessionByKey(sessionKey);
+}
+
 module.exports = {
     getNewSession,
     addUserToSession,
-    getHangmanSocketService
+    getHangmanSocketService,
+    getSessionByKey
 };

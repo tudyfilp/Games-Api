@@ -190,7 +190,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     }
 
-
     decreaseLives(userKey, session) {
 
         let user = this.getUser(userKey, session);

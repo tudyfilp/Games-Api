@@ -109,15 +109,15 @@ const setSessionField = async (req, res) => {
     }
 };
 
-const getGamesSocketService = (socket, getSession) => {
+const getGamesSocketService = (socket, getSession, messages) => {
     return {
         handleChat: (message) => {
-            console.log(message);
-
+            messages.push(message);
             socket.to(getSession(socket)).emit('receivedMessage', {
                 message,
                 sender: 'not_me'
             });
+            
         }
     }
 }
