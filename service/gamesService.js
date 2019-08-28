@@ -109,9 +109,24 @@ const setSessionField = async (req, res) => {
     }
 };
 
+const getGamesSocketService = (socket, getSession) => {
+    return {
+        handleChat: (message) => {
+            console.log(message);
+
+            socket.to(getSession(socket)).emit('receivedMessage', {
+                message,
+                sender: 'not_me'
+            });
+        }
+    }
+}
+
 module.exports = {
-    setSessionField: setSessionField,
-    getAllGames: getAllGames,
-    getGameData: getGameData,
-    setSentences: setSentences,
+    setSessionField,
+    getAllGames,
+    getGameData,
+    setSentences,
+    getGamesSocketService
+
 };

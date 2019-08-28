@@ -1,31 +1,23 @@
-const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
-const db = require('../Firebase/Firestore');
-let repo = new HangmanFirebaseRepository(db);
+let hangmanService = require('../service/hangmanService');
+let gamesService = require('../service/gamesService');
 
-var getSession = (socket) => {
-    return Object.keys(socket.rooms)[1];
-}
-
-module.exports = function(io) {
+module.exports = function(io, getSession) {
 
     io.of('/hangman').on('connection', socket => {
-        // joinSession(socket, socket.handshake.query.roomName);
         let roomName = socket.handshake.query.roomName;
-        console.log('hello, there!');
+        let userId = socket.handshake.query.userId;
+        console.log(`hello, there ${userId}!`);
         socket.join(roomName, () => {
 
-            socket.on('newMessage', (message) => {
-                console.log(message);
+            hangmanService.addUserToSession(userId, roomName);
 
-                socket.to(getSession(socket)).emit('receivedMessage', {
-                    message,
-                    sender: 'not_me'
-                });
-            });
+            const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession);
+            const gameSocketService = gamesService.getGamesSocketService(socket, getSession);
 
-            socket.on('letterPressed', ({sessionId, userId, letter}) => {
-                console.log(sessionId, userId, letter);
-            });
+            socket.on('newMessage', gameSocketService.handleChat);
+
+            socket.on('letterPressed', hangmanSocketService.letterPressed);
+
         });
 
         socket.on('disconnect', () => {
