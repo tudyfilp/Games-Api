@@ -19,7 +19,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
         return gameData;
     }
    
-    async setSession(gameKey,sessionKey,item){
+    async setSession(gameKey, sessionKey, item){
 
         let path = "games/" + gameKey + "/sessions";
 
@@ -30,19 +30,24 @@ class GamesFirebaseRepository extends FirebaseRepository {
         await documentRef.set(item, {merge: true});
     }
 
-    async addSession(gameKey,session) {
-
+    async addSession(gameKey, session) {
         let path = "games/" + gameKey + "/sessions";
 
         let documentRef = await this._database.collection(path).add(session);
         
-        return await this._database.collection(path).doc(documentRef.id).get().then((doc)=>{return doc.data()});
+        return await this._database.collection(path).doc(documentRef.id).get()
+        .then((doc)=> {
+            return {
+                sessionData: doc.data(),
+                sessionId: doc.id
+                }
+            });
 
     }
 
-    async setSessionField(gameKey,sessionKey,item){
+    async setSessionField(gameKey, sessionKey, item){
 
-        await this.setSession(gameKey,sessionKey,item);
+        await this.setSession(gameKey, sessionKey, item);
     
         return "added";
      }
@@ -63,7 +68,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
                        {   
                            cb({sessionData: querySnapshot.docs[0].data(),
                                 sessionId: querySnapshot.docs[0].id
-                            }) ;
+                            });
                        }
 
                    });

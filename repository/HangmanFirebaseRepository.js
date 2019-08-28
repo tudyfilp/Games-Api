@@ -16,20 +16,26 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     } 
 
     async addSession() {
+        let randomSession = await this.getRandomSession();
+        return await super.addSession(this._gameKey, randomSession);
+    }
 
-        return await super.addSession(this._gameKey, await this.getRandomSession());
+    async setSession(sessionKey,sessionData) {
+
+      super.setSession(this._gameKey,sessionKey,sessionData);
     }
 
     async getRandomSession() {
 
         let phraseInfo = await this.getRandomPhrase();
+   
         let session = Object.assign({}, this.model.session);
 
         session.phrase = phraseInfo.phrase;
         session.phraseCategory = phraseInfo.category;
-
         this.addPhraseLetters(session);
         this.setupCompletedPhrase(session);
+
         return session;
     }
 
@@ -65,9 +71,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     getSession(cb) {
         return super.getSession(this._gameKey, cb);
     }
-    async addSession() {
-        return await super.addSession(this._gameKey, this.model.session);
-    }
 
     async setSentences(category, sentences) {
         let path = this._phrasesPath;
@@ -75,10 +78,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this._database.collection(path).doc(category).set({ sentences }, { merge: true });
     }
 
-    async getPhrase(sessionKey) {
-        let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
-
-        return docRef.data().phrase;
+    getPhrase(session) {
+        return session.phrase;
     }
 
     getPhrasesByCategory(){
@@ -103,13 +104,18 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
     
     async getSessionByKey(sessionKey) {
+        
         let path = "games/" + this._gameKey + "/sessions";
-
-        return await this._database.collection(path).doc(sessionKey).get().then((session) => { return session.data() });
+        let docRef = await this._database.collection(path).doc(sessionKey).get();
+        
+        return {
+            data: docRef.data(),
+            id: docRef.id
+        };
     }
 
-    async checkLetter(sessionKey, letter) {
-        let phrase = await this.getPhrase(sessionKey);
+    checkLetter(sessionKey, letter) {
+        let phrase = this.getPhrase(sessionKey);
 
         let result = phrase.search(letter);
 
@@ -120,74 +126,49 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return true;
     }
 
-    async addUser(userKey, sessionKey) {
-        let path = this._sessionsPath;
-
-        let user = {};
-        user[userKey] = { lives: 4, score: 0 };
-
-        this._database.collection(path).doc(sessionKey).set({ users: user }, { merge: true });
+    addUser(userKey, session) {
+        session.users[userKey] = { lives: 4, score: 0 };
     }
 
-    async getUser(userKey, sessionKey) {
-        let path = this._sessionsPath;
-
-        return await this._database.collection(path).doc(sessionKey).get().then((d) => { return d.data().users[userKey] });
+    getUser(userKey, session) {
+        return session.users[userKey];
     }
 
-    async getLetterScore(sessionKey, letter) {
-        let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
-
-        return docRef.data().phraseLetters[letter];
+    getLetterScore(session, letter) {
+        return session.phraseLetters[letter];
     }
 
-    async addGuessedLetter(sessionKey, letter) {
-        let path = this._sessionsPath;
-
-        this._database.collection(path).doc(sessionKey).set({ guessedLetters: letter }, { merge: true });
+    addGuessedLetter(session, letter) {
+        session.guessedLetters.push(letter);
     }
-    async isLetterGuessed(sessionKey, letter) {
+    isLetterGuessed(session, letter) {
 
-        let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
+        return session.guessedLetters.includes(letter);
 
-        let guessedLetters = docRef.data().guessedLetters;
-
-        for (var i = 0; i < guessedLetters.length; i++) {
-
-            if (guessedLetters[i] === letter) {
-
-                return true;
-            }
-        }
-        return false;
     }
 
-    async getCompletedPhrase(sessionKey) {
-        let docRef = await this._database.collection(this._sessionsPath).doc(sessionKey).get();
-
-        return docRef.data().completedPhrase;
+    getCompletedPhrase(session) {
+        return session.completedPhrase;
     }
 
-    async setCompletedPhrase(sessionKey, newCompletedPhrase) {
-        let path = this._sessionsPath;
-
-        this._database.collection(path).doc(sessionKey).set({ completedPhrase: newCompletedPhrase }, { merge: true });
+    setCompletedPhrase(session, newCompletedPhrase) {
+        session.completedPhrase = newCompletedPhrase;
     }
 
-    async updateCompletedPhrase(sessionKey, letter) {
-        let completedPhrase = await this.getCompletedPhrase(sessionKey);
-        let phrase = await this.getPhrase(sessionKey);
+    updateCompletedPhrase(session, letter) {
+        let completedPhrase = this.getCompletedPhrase(session);
+        let phrase = this.getPhrase(session);
 
         for (var i = 0; i < phrase.length; i++) {
             if (phrase[i] === letter) {
                 completedPhrase[i] = letter;
             }
         }
-        this.setCompletedPhrase(sessionKey, completedPhrase);
+        this.setCompletedPhrase(session, completedPhrase);
     }
 
-    async isPhraseComplete(sessionKey) {
-        let phrase = await this.getCompletedPhrase(sessionKey);
+    isPhraseComplete(session) {
+        let phrase = this.getCompletedPhrase(session.data);
 
         function isEmpty(letter) {
             return letter === "";
@@ -196,62 +177,40 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return phrase.find(isEmpty) != "";
     }
 
-    async isGameEnded(sessionKey) {
-        let isComplete = await this.isPhraseComplete(sessionKey);
-        if (isComplete === true) {
-            let path = this._sessionsPath;
-
-            this._database.collection(path).doc(sessionKey).set({ gameEnded: true }, { merge: true });
-            return true;
-        }
-        return false;
+    endGame(session) {
+        session.data.gameEnded = true;
     }
     
-    async increaseScore(userKey, sessionKey, letter) {
-        let path = this._sessionsPath;
+    increaseScore(userKey, session, letter) {
 
-        let user = await this.getUser(userKey, sessionKey);
-        let points = await this.getLetterScore(sessionKey, letter);
+        let user = this.getUser(userKey, session);
+        let points = this.getLetterScore(session, letter);
 
-        let newUser = {};
-        let obj = {};
-        obj.lives = user.lives;
-        obj.score = user.score + points;
-        newUser[userKey] = obj;
+        session.users[userKey].score = user.score + points;
 
-        this._database.collection(path).doc(sessionKey).set({ users: newUser }, { merge: true });
     }
 
 
-    async decreaseLives(userKey, sessionKey) {
-        let path = this._sessionsPath;
+    decreaseLives(userKey, session) {
 
-        let user = await this.getUser(userKey, sessionKey);
+        let user = this.getUser(userKey, session);
 
-        let newUser = {};
-        let obj = {};
-        obj.lives = user.lives - 1;
-        obj.score = user.score;
-        newUser[userKey] = obj;
+        session.users[userKey].lives = user.lives - 1;
 
-        this._database.collection(path).doc(sessionKey).set({ users: newUser }, { merge: true });
     }
 
-    async registerLetter(userKey, sessionKey, letter) {
-        
-        if (await (this.isGameEnded(sessionKey)) === false) {
-            if (await (this.isLetterGuessed(sessionKey, letter)) === false) {
-                if (await (this.checkLetter(sessionKey, letter)) === true) {
-                    this.increaseScore(userKey, sessionKey, letter);
-                    this.addGuessedLetter(sessionKey, letter);
-                    this.updateCompletedPhrase(sessionKey, letter);
+    registerLetter(userKey, session, letter) {
+
+            if (!this.isLetterGuessed(session, letter)) {
+                if (this.checkLetter(session, letter)) {
+                    this.increaseScore(userKey, session, letter);
+                    this.addGuessedLetter(session, letter);
+                    this.updateCompletedPhrase(session, letter);
                 }
                 else {
-                    this.decreaseLives(userKey, sessionKey);
+                    this.decreaseLives(userKey, session);
                 }
             }
-        }
-        else return;
     }
 }
 

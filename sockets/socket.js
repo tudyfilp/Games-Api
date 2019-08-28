@@ -1,6 +1,5 @@
-var getSession = (io, socket) => {
-        console.log(io.sockets.adapter.sids[socket.id]);
-        return Object.keys(io.sockets.adapter.sids[socket.id])[1];
+var getSession = (socket) => {
+        return Object.keys(socket.rooms)[1];
 }
 
 var joinSession = (socket, sessionId) => {
@@ -9,9 +8,5 @@ var joinSession = (socket, sessionId) => {
 
 module.exports = function(io) {
 
-        // io.on('connection', socket => {
-        //         socket.join('ceva');
-        //         console.log(getSession(io, socket));
-        // })
-        require('./hangmanSocket')(io);
+        require('./hangmanSocket')(io, getSession);
 }

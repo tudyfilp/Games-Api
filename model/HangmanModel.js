@@ -13,6 +13,7 @@ class HangmanModel{
           phraseCategory: "",
           guessedLetters: [],
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+          initialNumberOfLives: 4,
           activeUser: "",
           users: {} /// key: score
         }
