@@ -111,11 +111,11 @@ const setSessionField = async (req, res) => {
 
 const getGamesSocketService = (socket, getSession, messages) => {
     return {
-        handleChat: (message) => {
-            messages.push(message);
+        handleChat: ({message, sender}) => {
+            messages.push({message, sender});
             socket.to(getSession(socket)).emit('receivedMessage', {
                 message,
-                sender: 'not_me'
+                sender
             });
             
         }
