@@ -37,6 +37,7 @@ const registerNewLetter = (userId, session, letter) => {
 const getHangmanSocketService = (socket, getSession, getSessionData) => {
     return {
         letterPressed: async ({sessionId, userId, letter}) => {
+
             let session = getSessionData(sessionId);
             registerNewLetter(userId, session, letter);
 
@@ -45,10 +46,9 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
 
+            socket.emit('sessionUpdated', sessionCopy);
 
-            socket.emit('sessionUpdated', session);
-
-            repository.setSession(session.id, sessionCopy.data);
+            repository.setSession(session.id, session.data);
         }
     }
 }
