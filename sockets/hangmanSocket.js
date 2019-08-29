@@ -12,27 +12,35 @@ const createSession = async (gameData, sessionKey) => {
     gameData[sessionKey].messages = [];
 }
 
-const getSessionMessages = (gameData, sessionKey) => {
+const getSessionDetailsForClient = (gameData, sessionKey) => {
     if(!gameData.hasOwnProperty(sessionKey)) 
         throw new Error('No session has been found for the given key');
     
-    return gameData[sessionKey].messages;
+    let sessionData = gameData[sessionKey].data;
+    
+    delete sessionData.phrase;
+    delete sessionData.phraseLetters;
+
+    return {
+        data: sessionData,
+        messages: gameData[sessionKey].messages
+    }
     
 }
 
 module.exports = function(io, getSession, gameData) {
 
-    io.of('/hangman').on('connection', async (socket) => {
+    io.of('/hangman').on('connection', socket => {
         
         let sessionName = socket.handshake.query.roomName;
         let userId = socket.handshake.query.userId;
-        if(isNewSession(gameData, sessionName))
-            await createSession(gameData, sessionName);
+
+        if(isNewSession(gameData, sessionName)) 
+            createSession(gameData, sessionName);
 
         socket.join(sessionName, () => {
-            hangmanService.addUserToSession(userId, sessionName);
 
-            socket.emit('getMessages', getSessionMessages(gameData, sessionName));
+            hangmanService.addUserToSession(userId, sessionName);
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession);
             const gameSocketService = gamesService.getGamesSocketService(socket, getSession, gameData[sessionName].messages);
