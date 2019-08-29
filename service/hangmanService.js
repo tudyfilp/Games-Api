@@ -15,9 +15,9 @@ const getNewSession = (req, res) => {
     
 };
 
-const addUserToSession = async (userId, sessionKey) => {
+const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
-    let session = await repository.getSessionByKey(sessionKey);
+    let session = getSessionData(sessionKey);
     repository.addUser(userId, session.data);
     
     repository.setSession(sessionKey, session.data);
@@ -34,18 +34,21 @@ const registerNewLetter = (userId, session, letter) => {
 
 }
 
-const getHangmanSocketService = (socket, getSession) => {
+const getHangmanSocketService = (socket, getSession, getSessionData) => {
     return {
         letterPressed: async ({sessionId, userId, letter}) => {
-            let session = await repository.getSessionByKey(sessionId);
+            let session = getSessionData(sessionId);
             registerNewLetter(userId, session, letter);
 
-            delete session.data.phrase;
-            delete session.data.phraseLetters;
+            let sessionCopy = JSON.parse(JSON.stringify(session));
+
+            delete sessionCopy.data.phrase;
+            delete sessionCopy.data.phraseLetters;
+
 
             socket.emit('sessionUpdated', session);
 
-            repository.setSession(session.id, session.data);
+            repository.setSession(session.id, sessionCopy.data);
         }
     }
 }
