@@ -19,8 +19,10 @@ const addUserToSession = async (userId, sessionKey) => {
 
     let session = await repository.getSessionByKey(sessionKey);
     repository.addUser(userId, session.data);
-    
+    session.data.availablePlaces = session.data.availablePlaces - 1;
+
     repository.setSession(sessionKey, session.data);
+
 }
 
 
