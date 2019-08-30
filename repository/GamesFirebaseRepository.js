@@ -82,7 +82,12 @@ class GamesFirebaseRepository extends FirebaseRepository {
     async getArrayOfSessions(gameKey) {
         let sessionsPath = "games/" + gameKey + "/sessions";
         const snapshot = await this._database.collection(sessionsPath).get()
-        return snapshot.docs.map(doc => doc.data());
+        return snapshot.docs.map(doc => {
+            return {
+                sessionId: doc.id, 
+                sessionData: doc.data()
+            }
+        });
     }
 
     checkNested(obj, userKey,  ...rest) {
@@ -97,9 +102,10 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
         for(let i = 0; i <= sessionsArray.length; i++){
 
-            let result = this.checkNested(sessionsArray[i].users,userKey);
+            let result = this.checkNested(sessionsArray[i].sessionData.users,userKey);
 
-            if(result === true && sessionsArray[i].gameEnded === false) {return sessionsArray[i];};            
+            if(result === true && sessionsArray[i].sessionData.gameEnded === false) {
+                return sessionsArray[i];}; 
         }
         return null;
     }

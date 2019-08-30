@@ -3,24 +3,23 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 
 const repository = new HangmanFirebaseRepository(db);
 
-const getNewSession = async (userKey, req, res) => {
-    
-    let existingSession = await(repository.getSessionByUserKey(userKey));
-   
-    if (existingSession === null){
-    repository.getSession(async (session) => {
-        if (session === null) {
-            session = await repository.addSession();
-        }
-        delete session.sessionData.phrase;
-        delete session.sessionData.phraseLetters;
-       // res.send(JSON.stringify(session));
-    });
+const getNewSession = async (req, res) => {
+
+    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
+
+    if (existingSession === null) {
+        repository.getSession(async (session) => {
+            if (session === null) {
+                session = await repository.addSession();
+            }
+            delete session.sessionData.phrase;
+            delete session.sessionData.phraseLetters;
+            res.send(JSON.stringify(session));
+        });
     }
-    else 
-    {
-    session = existingSession;
-    res.send(JSON.stringify(existingSession));}
+    else {
+        res.send(JSON.stringify(existingSession));
+    }
 };
 
 const addUserToSession = async (userId, sessionKey) => {
