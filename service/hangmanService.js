@@ -3,16 +3,24 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 
 const repository = new HangmanFirebaseRepository(db);
 
-const getNewSession = (req, res) => {
+const getNewSession = async (userKey, req, res) => {
+    
+    let existingSession = await(repository.getSessionByUserKey(userKey));
+   
+    if (existingSession === null){
     repository.getSession(async (session) => {
-        if(session === null){
+        if (session === null) {
             session = await repository.addSession();
         }
         delete session.sessionData.phrase;
         delete session.sessionData.phraseLetters;
-        res.send(JSON.stringify(session));
+       // res.send(JSON.stringify(session));
     });
-    
+    }
+    else 
+    {
+    session = existingSession;
+    res.send(JSON.stringify(existingSession));}
 };
 
 const addUserToSession = async (userId, sessionKey) => {
@@ -31,14 +39,14 @@ const registerNewLetter = (userId, session, letter) => {
 
     repository.registerLetter(userId, session.data, letter);
 
-    if(repository.isPhraseComplete(session))
+    if (repository.isPhraseComplete(session))
         repository.endGame(session);
 
 }
 
 const getHangmanSocketService = (socket, getSession) => {
     return {
-        letterPressed: async ({sessionId, userId, letter}) => {
+        letterPressed: async ({ sessionId, userId, letter }) => {
             let session = await repository.getSessionByKey(sessionId);
             registerNewLetter(userId, session, letter);
 

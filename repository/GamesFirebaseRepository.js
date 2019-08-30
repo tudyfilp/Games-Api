@@ -63,12 +63,54 @@ class GamesFirebaseRepository extends FirebaseRepository {
         };
     }
 
-    getSession(gameKey, cb) {
-        let path = "games/" + gameKey + "/sessions";
+    async getUsers(sessionKey) {
 
+        let session = await this.getSessionByKey(sessionKey);
+        console.log("useeeerssss", session.data.users);
+        return session.data.users;
+
+    }
+
+    async isUserInSession(userKey, sessionKey) {
+        let users = await this.getUsers(sessionKey);
+
+        if (users[userKey])
+            return true;
+        return false;
+    }
+
+    async getArrayOfSessions(gameKey) {
+        let sessionsPath = "games/" + gameKey + "/sessions";
+        const snapshot = await this._database.collection(sessionsPath).get()
+        return snapshot.docs.map(doc => doc.data());
+    }
+
+    checkNested(obj, userKey,  ...rest) {
+        if (obj === undefined) return false
+        if (rest.length == 0 && obj.hasOwnProperty(userKey)) return true
+        return this.checkNested(obj[userKey], ...rest)
+      }
+
+    async getSessionByUserKey(gameKey, userKey) {
+
+        let sessionsArray= await (this.getArrayOfSessions(gameKey));
+
+        for(let i = 0; i <= sessionsArray.length; i++){
+
+            let result = this.checkNested(sessionsArray[i].users,userKey);
+
+            if(result === true && sessionsArray[i].gameEnded === false) {return sessionsArray[i];};            
+        }
+        return null;
+    }
+
+    getSession(gameKey, cb) {
+
+        let path = "games/" + gameKey + "/sessions";
+   
         this._database.collection(path)
             .where("availablePlaces", ">", 0)
-            .where('gameEnded',"==",false)
+            .where('gameEnded', "==", false)
             .limit(1)
             .get()
             .then((querySnapshot) => {
