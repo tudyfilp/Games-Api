@@ -4,6 +4,7 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 const repository = new HangmanFirebaseRepository(db);
 
 const getNewSession = (req, res) => {
+    // console.log("userId: " + req.body.userId);
     repository.getSession(async (session) => {
         if(session === null){
             session = await repository.addSession();
@@ -25,8 +26,6 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
 
 const registerNewLetter = (userId, session, letter) => {
-
-
     repository.registerLetter(userId, session.data, letter);
 
     if(repository.isPhraseComplete(session))
@@ -42,6 +41,9 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             registerNewLetter(userId, session, letter);
 
             let sessionCopy = JSON.parse(JSON.stringify(session));
+            
+            // if(isGameEnded(session))
+            //     delete session;
 
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
@@ -51,6 +53,10 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             repository.setSession(session.id, session.data);
         }
     }
+}
+
+const isGameEnded = (session) => {
+    return session.data.gameEnded;
 }
 
 const getSessionByKey = async (sessionKey) => {

@@ -2,6 +2,8 @@ let hangmanService = require('../service/hangmanService');
 let gamesService = require('../service/gamesService');
 
 const isNewSession = (gameData, sessionKey) => {
+    if(gameData.hasOwnProperty(sessionKey) && !gameData[sessionKey].data)
+        return true;
     return !gameData.hasOwnProperty(sessionKey);
 }
 
@@ -13,6 +15,7 @@ const createSession = async (gameData, sessionKey) => {
 }
 
 const getSessionMessages = (gameData, sessionKey) => {
+
     if(!gameData.hasOwnProperty(sessionKey)) 
         throw new Error('No session has been found for the given key');
     
@@ -45,13 +48,13 @@ module.exports = function(io, getSession, gameData) {
         socket.join(sessionName, () => {
             hangmanService.addUserToSession(userId, sessionName, getSessionData(gameData));
 
+            socket.emit('sessionUpdated', getSessionData(gameData)(sessionName));
             socket.emit('getMessages', getSessionMessages(gameData, sessionName));
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession, getSessionData(gameData));
-            const gameSocketService = gamesService.getGamesSocketService(socket, getSession, gameData[sessionName].messages);
+            const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionName));
 
             socket.on('newMessage', gameSocketService.handleChat);
-
             socket.on('letterPressed', hangmanSocketService.letterPressed);
 
         });
