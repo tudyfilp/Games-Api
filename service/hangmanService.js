@@ -4,7 +4,6 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 const repository = new HangmanFirebaseRepository(db);
 
 const getNewSession = (req, res) => {
-    // console.log("userId: " + req.body.userId);
     repository.getSession(async (session) => {
         if(session === null){
             session = await repository.addSession();
@@ -20,15 +19,17 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
     let session = getSessionData(sessionKey);
     repository.addUser(userId, session.data);
-    
+    session.data.availablePlaces = session.data.availablePlaces - 1;
+
     repository.setSession(sessionKey, session.data);
+
 }
 
 
 const registerNewLetter = (userId, session, letter) => {
     repository.registerLetter(userId, session.data, letter);
 
-    if(repository.isPhraseComplete(session))
+    if (repository.isPhraseComplete(session))
         repository.endGame(session);
 
 }

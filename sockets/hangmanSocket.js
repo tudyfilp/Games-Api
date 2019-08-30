@@ -9,7 +9,7 @@ const isNewSession = (gameData, sessionKey) => {
 
 const createSession = async (gameData, sessionKey) => {
     gameData[sessionKey] = {};
-    let session = await hangmanService.getSessionByKey(sessionKey);
+    let session = await (hangmanService.getSessionByKey(sessionKey));
     gameData[sessionKey].data = session.data;
     gameData[sessionKey].messages = [];
 }
@@ -39,20 +39,21 @@ module.exports = function(io, getSession, gameData) {
 
     io.of('/hangman').on('connection', async (socket) => {
         
-        let sessionName = socket.handshake.query.roomName;
+        let sessionKey = socket.handshake.query.roomName;
         let userId = socket.handshake.query.userId;
 
-        if(isNewSession(gameData, sessionName))
-            await createSession(gameData, sessionName);
+        if(isNewSession(gameData, sessionKey)){
+            await createSession(gameData, sessionKey);
+        }
 
-        socket.join(sessionName, () => {
-            hangmanService.addUserToSession(userId, sessionName, getSessionData(gameData));
+        socket.join(sessionKey, () => {
+            hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
 
-            socket.emit('sessionUpdated', getSessionData(gameData)(sessionName));
-            socket.emit('getMessages', getSessionMessages(gameData, sessionName));
+            socket.emit('sessionUpdated', getSessionData(gameData)(sessionKey));
+            socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession, getSessionData(gameData));
-            const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionName));
+            const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionKey));
 
             socket.on('newMessage', gameSocketService.handleChat);
             socket.on('letterPressed', hangmanSocketService.letterPressed);

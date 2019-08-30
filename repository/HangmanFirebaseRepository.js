@@ -108,7 +108,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         
         let path = "games/" + this._gameKey + "/sessions";
         let docRef = await this._database.collection(path).doc(sessionKey).get();
-        console.log(docRef.id);
         return {
             data: docRef.data(),
             id: docRef.id
