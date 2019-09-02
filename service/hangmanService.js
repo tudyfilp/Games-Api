@@ -1,26 +1,33 @@
 const db = require('../Firebase/Firestore');
 const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
+const UserFirebaseRepository = require('../repository/UserFirebaseRepository');
 
 const repository = new HangmanFirebaseRepository(db);
+const userRepository = new UserFirebaseRepository(db);
 
-const getNewSession = async (req, res) => {
+const mergeUsernamesIntoSession = async (sessionData) => {
 
-    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
-    if (existingSession === null) {
-        repository.getSession(async (session) => {
-            if (session === null) {
-                session = await repository.addSession();
-            }
-
-            delete session.sessionData.phrase;
-            delete session.sessionData.phraseLetters;
-
-            res.send(JSON.stringify(session));
-        });
+    for (let userKey in sessionData.users) {
+        sessionData.users[userKey].username = (await userRepository.getItemById(userKey)).username;
     }
-    else {
-        res.send(JSON.stringify(existingSession));
-    }
+
+    return sessionData;
+};
+
+const getNewSession = (req, res) => {
+    repository.getSession(async (session) => {
+        if(session === null){
+            session = await repository.addSession();
+        }
+        
+        delete session.sessionData.phrase;
+        delete session.sessionData.phraseLetters;
+
+        await mergeUsernamesIntoSession(session.sessionData);
+
+        res.send(JSON.stringify(session));
+    });
+    
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
@@ -58,6 +65,8 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
+            
+            await mergeUsernamesIntoSession(sessionCopy.data);
             
             socket.emit('sessionUpdated', sessionCopy);
 
