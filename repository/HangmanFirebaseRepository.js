@@ -207,20 +207,21 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
 
     registerLetter(userKey, session, letter) {
-
-        if (!this.isLetterGuessed(session, letter)) {
-            if (this.checkLetter(session, letter)) {
-                this.increaseScore(userKey, session, letter);
-                this.addGuessedLetter(session, letter);
-                this.updateCompletedPhrase(session, letter);
-            }
-            else {
-                this.decreaseLives(userKey, session);
+        if (session.users[userKey].lives > 0) {
+            if (!this.isLetterGuessed(session, letter)) {
+                if (this.checkLetter(session, letter)) {
+                    this.increaseScore(userKey, session, letter);
+                    this.addGuessedLetter(session, letter);
+                    this.updateCompletedPhrase(session, letter);
+                }
+                else {
+                    this.decreaseLives(userKey, session);
+                }
             }
         }
+        else return;
     }
 }
-
 module.exports = HangmanFirebaseRepository;
 
 
