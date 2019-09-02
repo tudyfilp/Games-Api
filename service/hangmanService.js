@@ -13,13 +13,11 @@ const getNewSession = async (req, res) => {
             }
             delete session.sessionData.phrase;
             delete session.sessionData.phraseLetters;
-            console.log("session",session);
+
             res.send(JSON.stringify(session));
         });
     }
     else {
-        console.log("existingSession",existingSession);
-
         res.send(JSON.stringify(existingSession));
     }
 };
@@ -27,10 +25,11 @@ const getNewSession = async (req, res) => {
 const addUserToSession = async (userId, sessionKey) => {
 
     let session = await repository.getSessionByKey(sessionKey);
-    console.log(await(repository.isUserInSession(userId, sessionKey)));
+
     if (await(repository.isUserInSession(userId, sessionKey)) === false) {
         repository.addUser(userId, session.data);
-        session.data.availablePlaces = session.data.availablePlaces - 1;
+        session.data.activeUsers.push(userId);
+        session.data.availablePlaces = 4 - session.data.activeUsers.length;
     }
     repository.setSession(sessionKey, session.data);
 

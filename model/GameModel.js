@@ -9,6 +9,7 @@ class GameModel{
           gameEnded:false,
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
           activeUser: "",
+          activeUsers: [],
           users: {} 
         }
     }

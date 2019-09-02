@@ -31,6 +31,11 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return super.getSessionByUserKey(this._gameKey, userKey);
     }
     
+    async getActiveUsers(sessionKey) {
+
+        return super.getActiveUsers(this._gameKey, sessionKey);
+    }
+    
     async getRandomSession() {
 
         let phraseInfo = await this.getRandomPhrase();

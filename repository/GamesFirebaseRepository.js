@@ -90,21 +90,15 @@ class GamesFirebaseRepository extends FirebaseRepository {
         });
     }
 
-    checkNested(obj, userKey,  ...rest) {
-        if (obj === undefined) return false
-        if (rest.length == 0 && obj.hasOwnProperty(userKey)) return true
-        return this.checkNested(obj[userKey], ...rest)
-      }
-
     async getSessionByUserKey(gameKey, userKey) {
 
         let sessionsArray= await (this.getArrayOfSessions(gameKey));
 
         for(let i = 0; i < sessionsArray.length; i++){
 
-            let result = this.checkNested(sessionsArray[i].sessionData.users,userKey);
+            let result = sessionsArray[i].sessionData.activeUsers.indexOf(userKey);
 
-            if(result === true && sessionsArray[i].sessionData.gameEnded === false) {
+            if(result !== -1 && sessionsArray[i].sessionData.gameEnded === false) {
                 return sessionsArray[i];
             }; 
         }
