@@ -14,22 +14,32 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this._phrasesPath = `games/${this._gameKey}/phrases`;
 
         this.model = new HangmanModel();
-    } 
+    }
 
     async addSession() {
         let randomSession = await this.getRandomSession();
         return await super.addSession(this._gameKey, randomSession);
     }
 
-    async setSession(sessionKey,sessionData) {
+    async setSession(sessionKey, sessionData) {
 
-      super.setSession(this._gameKey,sessionKey,sessionData);
+        super.setSession(this._gameKey, sessionKey, sessionData);
     }
 
+    async getSessionByUserKey(userKey) {
+
+        return super.getSessionByUserKey(this._gameKey, userKey);
+    }
+    
+    async getActiveUsers(sessionKey) {
+
+        return super.getActiveUsers(this._gameKey, sessionKey);
+    }
+    
     async getRandomSession() {
 
         let phraseInfo = await this.getRandomPhrase();
-   
+
         let session = Object.assign({}, this.model.session);
 
         session.phrase = phraseInfo.phrase;
@@ -44,8 +54,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         let foundLetters = {};
         let phrase = session.phrase;
 
-        for(var pos in phrase) {
-            if(!foundLetters.hasOwnProperty(phrase[pos]) && isLetter(phrase[pos]))
+        for (var pos in phrase) {
+            if (!foundLetters.hasOwnProperty(phrase[pos]) && isLetter(phrase[pos]))
                 foundLetters[phrase[pos]] = 1;
             else if (foundLetters.hasOwnProperty(phrase[pos]) && isLetter(phrase[pos]))
                 foundLetters[phrase[pos]] = foundLetters[phrase[pos]] + 1;
@@ -59,8 +69,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         let phrase = session.phrase;
         let completedPhrase = [];
 
-        for(var pos in phrase) {
-            if(isLetter(phrase[pos]))
+        for (var pos in phrase) {
+            if (isLetter(phrase[pos]))
                 completedPhrase.push('');
             else
                 completedPhrase.push(phrase[pos]);
@@ -68,7 +78,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         session.completedPhrase = completedPhrase;
     }
-    
+
     getSession(cb) {
         return super.getSession(this._gameKey, cb);
     }
@@ -83,7 +93,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return session.phrase;
     }
 
-    getPhrasesByCategory(){
+    getPhrasesByCategory() {
         let sentencesByCategory = {};
         return this._database.collection(`games/${this._gameKey}/phrases`).get().then(snapshot => {
             snapshot.forEach(doc => sentencesByCategory[doc.id] = doc.data());
@@ -91,27 +101,23 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         });
     }
 
-    getRandomPhrase(){
+    getRandomPhrase() {
 
         return this.getPhrasesByCategory().then(result => {
 
             let randomCategory = getRandomItem(Object.keys(result));
 
             let chosenSentence = getRandomItem(result[randomCategory].sentences);
-            
-            return Promise.resolve({category: randomCategory, phrase: chosenSentence});
-            
+
+            return Promise.resolve({ category: randomCategory, phrase: chosenSentence });
+
         });
     }
-    
+
     async getSessionByKey(sessionKey) {
-        
-        let path = "games/" + this._gameKey + "/sessions";
-        let docRef = await this._database.collection(path).doc(sessionKey).get();
-        return {
-            data: docRef.data(),
-            id: docRef.id
-        };
+
+        return super.getSessionByKey(this._gameKey, sessionKey);
+
     }
 
     checkLetter(sessionKey, letter) {
@@ -180,7 +186,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     endGame(session) {
         session.data.gameEnded = true;
     }
-    
+
     increaseScore(userKey, session, letter) {
 
         let user = this.getUser(userKey, session);
@@ -200,16 +206,16 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     registerLetter(userKey, session, letter) {
 
-            if (!this.isLetterGuessed(session, letter)) {
-                if (this.checkLetter(session, letter)) {
-                    this.increaseScore(userKey, session, letter);
-                    this.addGuessedLetter(session, letter);
-                    this.updateCompletedPhrase(session, letter);
-                }
-                else {
-                    this.decreaseLives(userKey, session);
-                }
+        if (!this.isLetterGuessed(session, letter)) {
+            if (this.checkLetter(session, letter)) {
+                this.increaseScore(userKey, session, letter);
+                this.addGuessedLetter(session, letter);
+                this.updateCompletedPhrase(session, letter);
             }
+            else {
+                this.decreaseLives(userKey, session);
+            }
+        }
     }
 }
 

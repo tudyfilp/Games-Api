@@ -46,8 +46,8 @@ module.exports = function(io, getSession, gameData) {
             await createSession(gameData, sessionKey);
         }
 
-        socket.join(sessionKey, () => {
-            hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
+        socket.join(sessionKey, async () => {
+            await hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
 
             socket.emit('sessionUpdated', getSessionData(gameData)(sessionKey));
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));

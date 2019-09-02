@@ -15,7 +15,8 @@ class HangmanModel{
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
           initialNumberOfLives: 4,
           activeUser: "",
-          users: {} /// key: score
+          activeUsers: [],
+          users: {}
         }
       this.nrOfLivesPerActiveUser = 4;
     }

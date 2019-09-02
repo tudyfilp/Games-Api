@@ -3,24 +3,34 @@ const HangmanFirebaseRepository = require('../repository/HangmanFirebaseReposito
 
 const repository = new HangmanFirebaseRepository(db);
 
-const getNewSession = (req, res) => {
-    repository.getSession(async (session) => {
-        if(session === null){
-            session = await repository.addSession();
-        }
-        delete session.sessionData.phrase;
-        delete session.sessionData.phraseLetters;
-        res.send(JSON.stringify(session));
-    });
-    
+const getNewSession = async (req, res) => {
+
+    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
+    if (existingSession === null) {
+        repository.getSession(async (session) => {
+            if (session === null) {
+                session = await repository.addSession();
+            }
+            delete session.sessionData.phrase;
+            delete session.sessionData.phraseLetters;
+
+            res.send(JSON.stringify(session));
+        });
+    }
+    else {
+        res.send(JSON.stringify(existingSession));
+    }
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
-    let session = getSessionData(sessionKey);
-    repository.addUser(userId, session.data);
-    session.data.availablePlaces = session.data.availablePlaces - 1;
+    let session = await repository.getSessionByKey(sessionKey);
 
+    if (await(repository.isUserInSession(userId, sessionKey)) === false) {
+        repository.addUser(userId, session.data);
+        session.data.activeUsers.push(userId);
+        session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
+    }
     repository.setSession(sessionKey, session.data);
 
 }
