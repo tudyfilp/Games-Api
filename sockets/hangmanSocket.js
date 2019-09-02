@@ -7,9 +7,9 @@ module.exports = function(io, getSession) {
         let roomName = socket.handshake.query.roomName;
         let userId = socket.handshake.query.userId;
         console.log(`hello, there ${userId}!`);
-        socket.join(roomName, () => {
+        socket.join(roomName, async () => {
 
-            hangmanService.addUserToSession(userId, roomName);
+            await(hangmanService.addUserToSession(userId, roomName));
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession);
             const gameSocketService = gamesService.getGamesSocketService(socket, getSession);
