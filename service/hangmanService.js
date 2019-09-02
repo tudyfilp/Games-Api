@@ -29,7 +29,7 @@ const addUserToSession = async (userId, sessionKey) => {
     if (await(repository.isUserInSession(userId, sessionKey)) === false) {
         repository.addUser(userId, session.data);
         session.data.activeUsers.push(userId);
-        session.data.availablePlaces = 4 - session.data.activeUsers.length;
+        session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
     }
     repository.setSession(sessionKey, session.data);
 
