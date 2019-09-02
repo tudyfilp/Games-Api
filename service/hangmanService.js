@@ -14,7 +14,6 @@ const mergeUsernamesIntoSession = async (sessionData) => {
     return sessionData;
 };
 
-<<<<<<< HEAD
 const getNewSession = (req, res) => {
     repository.getSession(async (session) => {
         if(session === null){
@@ -29,26 +28,6 @@ const getNewSession = (req, res) => {
         res.send(JSON.stringify(session));
     });
     
-=======
-const getNewSession = async (req, res) => {
-
-    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
-    if (existingSession === null) {
-        repository.getSession(async (session) => {
-            if (session === null) {
-                session = await repository.addSession();
-            }
-
-            delete session.sessionData.phrase;
-            delete session.sessionData.phraseLetters;
-
-            res.send(JSON.stringify(session));
-        });
-    }
-    else {
-        res.send(JSON.stringify(existingSession));
-    }
->>>>>>> 4a34dd60cfc57be8b6a4218d316fcc4124ba7e62
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
@@ -66,10 +45,6 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
 
 const registerNewLetter = (userId, session, letter) => {
-<<<<<<< HEAD
-
-=======
->>>>>>> 4a34dd60cfc57be8b6a4218d316fcc4124ba7e62
     repository.registerLetter(userId, session.data, letter);
 
     if (repository.isPhraseComplete(session))
@@ -92,15 +67,10 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
             
-            socket.emit('sessionUpdated', sessionCopy);
-
-<<<<<<< HEAD
             await mergeUsernamesIntoSession(sessionCopy.data);
-
+            
             socket.emit('sessionUpdated', sessionCopy);
 
-=======
->>>>>>> 4a34dd60cfc57be8b6a4218d316fcc4124ba7e62
             repository.setSession(session.id, session.data);
         }
     }
