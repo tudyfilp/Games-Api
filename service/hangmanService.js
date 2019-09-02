@@ -24,8 +24,7 @@ const getNewSession = async (req, res) => {
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
-
-    let session = await repository.getSessionByKey(sessionKey);
+    let session = getSessionData(sessionKey);
 
     if (await(repository.isUserInSession(userId, sessionKey)) === false) {
         repository.addUser(userId, session.data);
