@@ -66,7 +66,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
     async getUsers(sessionKey) {
 
         let session = await this.getSessionByKey(sessionKey);
-        console.log("useeeerssss", session.data.users);
+        
         return session.data.users;
 
     }
@@ -100,12 +100,13 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
         let sessionsArray= await (this.getArrayOfSessions(gameKey));
 
-        for(let i = 0; i <= sessionsArray.length; i++){
+        for(let i = 0; i < sessionsArray.length; i++){
 
             let result = this.checkNested(sessionsArray[i].sessionData.users,userKey);
 
             if(result === true && sessionsArray[i].sessionData.gameEnded === false) {
-                return sessionsArray[i];}; 
+                return sessionsArray[i];
+            }; 
         }
         return null;
     }
