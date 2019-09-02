@@ -30,12 +30,12 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         return super.getSessionByUserKey(this._gameKey, userKey);
     }
-    
+
     async getActiveUsers(sessionKey) {
 
         return super.getActiveUsers(this._gameKey, sessionKey);
     }
-    
+
     async getRandomSession() {
 
         let phraseInfo = await this.getRandomPhrase();
@@ -200,8 +200,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     decreaseLives(userKey, session) {
 
         let user = this.getUser(userKey, session);
-
-        session.users[userKey].lives = user.lives - 1;
+        if (session.users[userKey].lives > 0) {
+            session.users[userKey].lives = user.lives - 1;
+        }
+        else return;
 
     }
 
