@@ -219,7 +219,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
                 }
             }
         }
-        else return;
+    }
+
+    isGameEnded(session) {
+        return session.data.gameEnded;
     }
 }
 module.exports = HangmanFirebaseRepository;

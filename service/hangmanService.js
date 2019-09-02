@@ -11,6 +11,7 @@ const getNewSession = async (req, res) => {
             if (session === null) {
                 session = await repository.addSession();
             }
+
             delete session.sessionData.phrase;
             delete session.sessionData.phraseLetters;
 
@@ -55,10 +56,10 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             
             // if(isGameEnded(session))
             //     delete session;
-
+            
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
-
+            
             socket.emit('sessionUpdated', sessionCopy);
 
             repository.setSession(session.id, session.data);
