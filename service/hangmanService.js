@@ -19,6 +19,10 @@ const getPlayeryUsername = async (userKey) => {
 }
 
 const getNewSession = async (req, res) => {
+    // if(req.body.sessionId !== null){
+    //     console.log(req.body.sessionId);
+    //     let session = repository.getSessionByKey(sessionId);
+    // }
     let existingSession = await (repository.getSessionByUserKey(req.body.userId));
 
     if (existingSession === null) {
