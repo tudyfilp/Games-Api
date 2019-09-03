@@ -64,7 +64,21 @@ const registerNewLetter = (userId, session, letter) => {
 
 }
 
-const getHangmanSocketService = (socket, getSession, getSessionData) => {
+const getSessionForClient = (session) => {
+    let sessionCopy = JSON.parse(JSON.stringify(session));
+
+    delete sessionCopy.data.phrase;
+    delete sessionCopy.data.phraseLetters;
+
+    return sessionCopy;
+}
+
+const emitToSession = (socket, session, eventName, eventData, ) => {
+    socket.emit(eventName, eventData);
+    socket.to(session).emit(eventName, eventData);
+}
+
+const getHangmanSocketService = (gameData, socket, getSession, getSessionData) => {
     return {
         letterPressed: async ({ sessionId, userId, letter }) => {
 
@@ -73,22 +87,15 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
 
             registerNewLetter(userId, session, letter);
 
-            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) {
-                socket.emit('userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
-            }
-
-            let sessionCopy = JSON.parse(JSON.stringify(session));
-
-            // if(isGameEnded(session))
-            //     delete session;
-
-            delete sessionCopy.data.phrase;
-            delete sessionCopy.data.phraseLetters;
-
-            socket.to(getSession(socket)).emit('sessionUpdated', sessionCopy);
-            socket.emit('sessionUpdated', sessionCopy);
+            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) 
+                emitToSession(socket, getSession(socket), 'userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
+    
+            emitToSession(socket, getSession(socket), 'sessionUpdated', getSessionForClient(session))
 
             repository.setSession(session.id, session.data);
+            
+            if(isGameEnded(session))
+                delete gameData[session.id];
         }
     }
 }
