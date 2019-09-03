@@ -86,13 +86,8 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
 
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
-<<<<<<< HEAD
-            
-=======
 
-            // await mergeUsernamesIntoSession(sessionCopy.data);
-
->>>>>>> isa
+            socket.to(getSession(socket)).emit('sessionUpdated', sessionCopy);
             socket.emit('sessionUpdated', sessionCopy);
 
             repository.setSession(session.id, session.data);
