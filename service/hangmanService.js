@@ -25,6 +25,7 @@ const getNewSession = (req, res) => {
 
         await mergeUsernamesIntoSession(session.sessionData);
 
+        console.log(JSON.stringify(session));
         res.send(JSON.stringify(session));
     });
     
@@ -67,7 +68,9 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             delete sessionCopy.data.phraseLetters;
             
             await mergeUsernamesIntoSession(sessionCopy.data);
-            
+
+            console.log(sessionCopy);
+
             socket.emit('sessionUpdated', sessionCopy);
 
             repository.setSession(session.id, session.data);
