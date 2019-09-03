@@ -18,21 +18,29 @@ const getPlayeryUsername = async (userKey) => {
     return (await userRepository.getItemById(userKey)).username;
 }
 
-const getNewSession = (req, res) => {
+const getNewSession = async (req, res) => {
+    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
 
-    repository.getSession(async (session) => {
-        if(session === null){
-            session = await repository.addSession();
-        }
-        
-        delete session.sessionData.phrase;
-        delete session.sessionData.phraseLetters;
+    if (existingSession === null) {
+        repository.getSession(async (session) => {
 
-        await mergeUsernamesIntoSession(session.sessionData);
+            if (session === null) {
+                session = await repository.addSession();
+            }
+            delete session.sessionData.phrase;
+            delete session.sessionData.phraseLetters;
 
-        res.send(JSON.stringify(session));
-    });
-    
+            await mergeUsernamesIntoSession(session.sessionData);
+
+            res.send(JSON.stringify(session));
+        });
+    }
+    else {
+
+        await mergeUsernamesIntoSession(existingSession.sessionData);
+
+        res.send(JSON.stringify(existingSession));
+    }    
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
