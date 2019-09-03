@@ -66,7 +66,7 @@ class GamesFirebaseRepository extends FirebaseRepository {
     async getUsers(sessionKey) {
 
         let session = await this.getSessionByKey(sessionKey);
-        
+
         return session.data.users;
 
     }
@@ -79,36 +79,22 @@ class GamesFirebaseRepository extends FirebaseRepository {
         return false;
     }
 
-    async getArrayOfSessions(gameKey) {
-        let sessionsPath = "games/" + gameKey + "/sessions";
-        const snapshot = await this._database.collection(sessionsPath).get()
-        return snapshot.docs.map(doc => {
-            return {
-                sessionId: doc.id, 
-                sessionData: doc.data()
-            }
-        });
-    }
-
     async getSessionByUserKey(gameKey, userKey) {
 
-        let sessionsArray= await (this.getArrayOfSessions(gameKey));
+        let path = "games/" + gameKey + "/sessions";
 
-        for(let i = 0; i < sessionsArray.length; i++){
-
-            let result = sessionsArray[i].sessionData.activeUsers.indexOf(userKey);
-
-            if(result !== -1 && sessionsArray[i].sessionData.gameEnded === false) {
-                return sessionsArray[i];
-            }; 
-        }
+        this._database.collection(path).where("activeUsers", "array-contains", userKey).get().then((r) => {
+            if (r.docs[0].data().gameEnded === true) {
+                return ({ sessionData: r.docs[0].data(), sessionId: r.docs[0].id });
+            }
+        });
         return null;
     }
 
     getSession(gameKey, cb) {
 
         let path = "games/" + gameKey + "/sessions";
-   
+
         this._database.collection(path)
             .where("availablePlaces", ">", 0)
             .where('gameEnded', "==", false)

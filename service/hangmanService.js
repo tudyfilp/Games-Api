@@ -14,23 +14,31 @@ const mergeUsernamesIntoSession = async (sessionData) => {
     return sessionData;
 };
 
-const getPlayeryUsername = async (userKey) => {
+const getPlayerUsername = async (userKey) => {
     return (await userRepository.getItemById(userKey)).username;
 }
 
-const getNewSession = (req, res) => {
-    repository.getSession(async (session) => {
-        if(session === null){
-            session = await repository.addSession();
-        }
-        
-        delete session.sessionData.phrase;
-        delete session.sessionData.phraseLetters;
+const getNewSession = async (req, res) => {
+    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
 
-        await mergeUsernamesIntoSession(session.sessionData);
-        res.send(JSON.stringify(session));
-    });
-    
+    if (existingSession === null) {
+        repository.getSession(async (session) => {
+
+            if (session === null) {
+                session = await repository.addSession();
+            }
+            delete session.sessionData.phrase;
+            delete session.sessionData.phraseLetters;
+
+            await mergeUsernamesIntoSession(session.sessionData);
+            res.send(JSON.stringify(session));
+        });
+    }
+    else {
+
+        await mergeUsernamesIntoSession(existingSession.sessionData);
+        res.send(JSON.stringify(existingSession));
+    }    
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
@@ -40,7 +48,7 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
         repository.addUser(userId, session.data);
 
         session.data.activeUsers.push(userId);
-        session.data.users[userId].username = await getPlayeryUsername(userId);
+        session.data.users[userId].username = await getPlayerUsername(userId);
         session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
     }
     repository.setSession(sessionKey, session.data);
@@ -73,6 +81,8 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
 
             socket.to(getSession(socket)).emit('sessionUpdated', sessionCopy);
             socket.emit('sessionUpdated', sessionCopy);
+
+            //socket.emit('userGuessedLetter',username,letter);
 
             repository.setSession(session.id, session.data);
         }
