@@ -28,7 +28,6 @@ const getNewSession = (req, res) => {
         delete session.sessionData.phraseLetters;
 
         await mergeUsernamesIntoSession(session.sessionData);
-
         res.send(JSON.stringify(session));
     });
     
