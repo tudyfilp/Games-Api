@@ -18,21 +18,29 @@ const getPlayeryUsername = async (userKey) => {
     return (await userRepository.getItemById(userKey)).username;
 }
 
-const getNewSession = (req, res) => {
-    repository.getSession(async (session) => {
-        if(session === null){
-            session = await repository.addSession();
-        }
-        
-        delete session.sessionData.phrase;
-        delete session.sessionData.phraseLetters;
+const getNewSession = async (req, res) => {
+    let existingSession = await (repository.getSessionByUserKey(req.body.userId));
 
-        await mergeUsernamesIntoSession(session.sessionData);
+    if (existingSession === null) {
+        repository.getSession(async (session) => {
 
-        console.log(JSON.stringify(session));
-        res.send(JSON.stringify(session));
-    });
-    
+            if (session === null) {
+                session = await repository.addSession();
+            }
+            delete session.sessionData.phrase;
+            delete session.sessionData.phraseLetters;
+
+            await mergeUsernamesIntoSession(session.sessionData);
+
+            res.send(JSON.stringify(session));
+        });
+    }
+    else {
+
+        await mergeUsernamesIntoSession(existingSession.sessionData);
+
+        res.send(JSON.stringify(existingSession));
+    }    
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
@@ -73,15 +81,9 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
             
-<<<<<<< HEAD
-            await mergeUsernamesIntoSession(sessionCopy.data);
-
-            console.log(sessionCopy);
-=======
-            // await mergeUsernamesIntoSession(sessionCopy.data);
->>>>>>> 2469e83ad841c5e2ba1be1b0060ba3d5a6cdc959
-
             socket.emit('sessionUpdated', sessionCopy);
+
+            //socket.emit('userGuessedLetter',username,letter);
 
             repository.setSession(session.id, session.data);
         }
