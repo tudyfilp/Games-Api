@@ -14,6 +14,10 @@ const mergeUsernamesIntoSession = async (sessionData) => {
     return sessionData;
 };
 
+const getPlayeryUsername = async (userKey) => {
+    return (await userRepository.getItemById(userKey)).username;
+}
+
 const getNewSession = (req, res) => {
     repository.getSession(async (session) => {
         if(session === null){
@@ -36,7 +40,9 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
     if (await(repository.isUserInSession(userId, sessionKey)) === false) {
         repository.addUser(userId, session.data);
+
         session.data.activeUsers.push(userId);
+        session.data.users[userId].username = await getPlayeryUsername(userId);
         session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
     }
     repository.setSession(sessionKey, session.data);
@@ -67,9 +73,13 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
             
+<<<<<<< HEAD
             await mergeUsernamesIntoSession(sessionCopy.data);
 
             console.log(sessionCopy);
+=======
+            // await mergeUsernamesIntoSession(sessionCopy.data);
+>>>>>>> 2469e83ad841c5e2ba1be1b0060ba3d5a6cdc959
 
             socket.emit('sessionUpdated', sessionCopy);
 
