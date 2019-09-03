@@ -15,6 +15,7 @@ const mergeUsernamesIntoSession = async (sessionData) => {
 };
 
 const getNewSession = (req, res) => {
+
     repository.getSession(async (session) => {
         if(session === null){
             session = await repository.addSession();

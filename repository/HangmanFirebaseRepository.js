@@ -141,7 +141,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
 
     getLetterScore(session, letter) {
-        return session.phraseLetters[letter];
+        let score = Math.round(1/session.phraseLetters[letter]);
+        return score;
     }
 
     addGuessedLetter(session, letter) {
