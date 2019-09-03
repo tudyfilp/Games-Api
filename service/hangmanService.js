@@ -85,6 +85,8 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
 
             socket.emit('sessionUpdated', sessionCopy);
 
+            //socket.emit('userGuessedLetter',username,letter);
+
             repository.setSession(session.id, session.data);
         }
     }
