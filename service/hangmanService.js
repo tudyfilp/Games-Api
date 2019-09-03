@@ -76,7 +76,9 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
             registerNewLetter(userId, session, letter);
 
             if (InitialGuessedLetters.length !== session.data.guessedLetters.length) {
-                socket.emit('userGuessedLetter', { sender: userId, letter });
+                let username = await (repository.getUsername(userId));
+
+                socket.emit('userGuessedLetter', { sender: "server", username: username, letter });
             }
 
             let sessionCopy = JSON.parse(JSON.stringify(session));
