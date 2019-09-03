@@ -40,13 +40,13 @@ const getNewSession = async (req, res) => {
         await mergeUsernamesIntoSession(existingSession.sessionData);
 
         res.send(JSON.stringify(existingSession));
-    }    
+    }
 };
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
     let session = getSessionData(sessionKey);
 
-    if (await(repository.isUserInSession(userId, sessionKey)) === false) {
+    if (await (repository.isUserInSession(userId, sessionKey)) === false) {
         repository.addUser(userId, session.data);
 
         session.data.activeUsers.push(userId);
@@ -68,24 +68,28 @@ const registerNewLetter = (userId, session, letter) => {
 
 const getHangmanSocketService = (socket, getSession, getSessionData) => {
     return {
-        letterPressed: async ({sessionId, userId, letter}) => {
+        letterPressed: async ({ sessionId, userId, letter }) => {
 
             let session = getSessionData(sessionId);
+            let InitialGuessedLetters = session.data.guessedLetters.slice();
+
             registerNewLetter(userId, session, letter);
 
+            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) {
+                socket.emit('userGuessedLetter', { sender: userId, letter });
+            }
+
             let sessionCopy = JSON.parse(JSON.stringify(session));
-            
+
             // if(isGameEnded(session))
             //     delete session;
-            
+
             delete sessionCopy.data.phrase;
             delete sessionCopy.data.phraseLetters;
-            
+
             // await mergeUsernamesIntoSession(sessionCopy.data);
 
             socket.emit('sessionUpdated', sessionCopy);
-
-            //socket.emit('userGuessedLetter',username,letter);
 
             repository.setSession(session.id, session.data);
         }
