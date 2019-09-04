@@ -163,6 +163,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         session.completedPhrase = newCompletedPhrase;
     }
 
+    updateAvailablePlaces(session) {
+        session.data.availablePlaces = this.model.availablePlaces - session.data.activeUsers.length;
+    }
+
     updateCompletedPhrase(session, letter) {
         let completedPhrase = this.getCompletedPhrase(session);
         let phrase = this.getPhrase(session);
@@ -241,9 +245,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
         if (this._validator.isUserInSession(session, userId) === true) {
             session.data.activeUsers = session.data.activeUsers.filter(userKey => userKey !== userId);
-            delete session.data.users[userId];
-            
-            console.log(this.model);
 
             session.data.availablePlaces = this.model.availablePlaces - session.data.activeUsers.length;
 
