@@ -239,6 +239,9 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         if (this._validator.isUserInSession(session, userId) === true) {
             session.data.activeUsers = session.data.activeUsers.filter(userKey => userKey !== userId);
             delete session.data.users[userId];
+            
+            session.data.availablePlaces += 1;
+
             await this.setSession(session.id, session.data);
         }
         else {

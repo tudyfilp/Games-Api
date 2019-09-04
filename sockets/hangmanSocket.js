@@ -35,7 +35,7 @@ const getSessionData = (gameData) => {
     }
 }
 
-const emitToSession = (socket, sessionKey, eventName, eventData, ) => {
+const emitToSession = (socket, sessionKey, eventName, eventData) => {
     socket.emit(eventName, eventData);
     socket.to(sessionKey).emit(eventName, eventData);
 }
@@ -62,12 +62,26 @@ module.exports = function(io, getSession, gameData) {
 
             socket.on('newMessage', gameSocketService.handleChat);
             socket.on('letterPressed', hangmanSocketService.letterPressed);
-            socket.on('disconnectFromSession', () => {
-                socket.disconnect();
-                console.log(gameData);
-            });
+            socket.on('disconnectFromSession', async () => {
 
+                console.log(JSON.stringify(gameData));
+                await hangmanSocketService.removeUserFromSession(userId, sessionKey);
+
+                socket.leave(getSession(socket));
+
+                socket.emit('disconnectedFromSession', "disconnected");
+                
+            });
         });
         
+        socket.on('disconnect', async (reason) => {
+            console.log(reason);
+            const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData), emitToSession);
+            await hangmanSocketService.removeUserFromSession(userId, sessionKey);
+
+            socket.leave(getSession(socket));
+
+            socket.emit('disconnectedFromSession', "disconnected");
+        });
     });
 }

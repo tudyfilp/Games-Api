@@ -118,6 +118,18 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
             
             if(isGameEnded(session))
                 delete gameData[session.id];
+        },
+        removeUserFromSession: async(userId, sessionId) => {
+            try {
+                await repository.removeUserFromSession(userId, sessionId);
+
+                gameData[sessionId].data.activeUsers = gameData[sessionId].data.activeUsers.filter(userKey => userKey !== userId);
+                delete gameData[sessionId].data.users[userId];
+            }
+            catch(e) {
+                console.log(e);
+            }
+            
         }
     }
 }
@@ -130,44 +142,51 @@ const getSessionByKey = async (sessionKey) => {
     return await repository.getSessionByKey(sessionKey);
 }
 
-const removeUserFromSession = async (req, resp) => {
-    let response;
+// const removeUserFromSessionRequestHandler = async (req, resp) => {
+//     let response;
 
-    if (req.body.hasOwnProperty('userId') === true) {
-        if (req.body.hasOwnProperty('sessionId') === true) {
-            try {
-                let result = await repository.removeUserFromSession(req.body.userId, req.body.sessionId);
+//     if (req.body.hasOwnProperty('userId') === true) {
+//         if (req.body.hasOwnProperty('sessionId') === true) {
+//             try {
+//                 let result = await repository.removeUserFromSession(req.body.userId, req.body.sessionId);
 
-                response = {
-                    state: 'OK',
-                    message: result
-                };
-            }
-            catch(e) {
-                response = {
-                    state: 'ERROR',
-                    message: e.message
-                };
-            }
+//                 response = {
+//                     state: 'OK',
+//                     message: result
+//                 };
+//             }
+//             catch(e) {
+//                 response = {
+//                     state: 'ERROR',
+//                     message: e.message
+//                 };
+//             }
             
-        }
-        else {
-            response = {
-                state: 'ERROR',
-                message: 'The session key was not provided.'
-            };
-        }
+//         }
+//         else {
+//             response = {
+//                 state: 'ERROR',
+//                 message: 'The session key was not provided.'
+//             };
+//         }
         
-    }
-    else {
-        response = {
-            state: 'ERROR',
-            message: 'The user key was not provided.'
-        };
-    }
+//     }
+//     else {
+//         response = {
+//             state: 'ERROR',
+//             message: 'The user key was not provided.'
+//         };
+//     }
 
-    resp.end(JSON.stringify(response));
+//     resp.end(JSON.stringify(response));
+// };
+
+const removeUserFromSession = async (userId, sessionId) => {
+    await repository.removeUserFromSession(userId, sessionId);
+
+    return true;
 };
+
 
 module.exports = {
     getNewSession,
