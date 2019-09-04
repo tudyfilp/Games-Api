@@ -53,13 +53,11 @@ module.exports = function(io, getSession, gameData) {
 
         socket.join(sessionKey, async () => {
             await hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
-
             
             socket.emit('sessionUpdated', getSessionData(gameData)(sessionKey));
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
-            // let session = await(hangmanService.getSessionByKey(sessionKey));
+
             emitToSession(socket, sessionKey, "newUser", {sender: "server", username: gameData[sessionKey].data.users[userId].username});
-            // socket.emit('newUser', {sender: "server", username: gameData[sessionKey].data.users[userId].username});
 
             const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData), emitToSession);
             const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionKey));
