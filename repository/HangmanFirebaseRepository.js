@@ -163,6 +163,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         session.completedPhrase = newCompletedPhrase;
     }
 
+    updateAvailablePlaces(session) {
+        session.data.availablePlaces = this.model.availablePlaces - session.data.activeUsers.length;
+    }
+
     updateCompletedPhrase(session, letter) {
         let completedPhrase = this.getCompletedPhrase(session);
         let phrase = this.getPhrase(session);

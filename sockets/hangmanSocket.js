@@ -87,7 +87,6 @@ module.exports = function(io, getSession, gameData) {
         socket.on('disconnect', async (reason) => {
             console.log(reason);
             const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData), emitToSession);
-            await hangmanSocketService.removeUserFromSession(userId, sessionKey);
 
             socket.leave(getSession(socket));
 

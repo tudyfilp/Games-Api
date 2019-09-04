@@ -69,12 +69,12 @@ const prepareClientToConnectToGivenSession = async (req, res) => {
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
     let session = getSessionData(sessionKey);
 
-    if (await (repository.isUserInSession(userId, sessionKey)) === false) {
+    if (isUserInSession(session, userId) === false) {
         repository.addUser(userId, session.data);
 
         session.data.activeUsers.push(userId);
         session.data.users[userId].username = await getPlayerUsername(userId);
-        session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
+        repository.updateAvailablePlaces(session);
     }
 
     repository.setSession(sessionKey, getSessionForDatabase(session).data);
@@ -178,6 +178,10 @@ const removeUserFromSession = async (userId, sessionId) => {
     await repository.removeUserFromSession(userId, sessionId);
 
     return true;
+};
+
+const isUserInSession = (session, userId) => {
+    return session.data.activeUsers.includes(userId);
 };
 
 
