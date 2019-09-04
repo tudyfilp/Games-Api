@@ -127,5 +127,4 @@ module.exports = {
     getGameData,
     setSentences,
     getGamesSocketService
-
 };

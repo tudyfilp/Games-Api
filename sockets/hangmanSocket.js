@@ -35,6 +35,11 @@ const getSessionData = (gameData) => {
     }
 }
 
+const emitToSession = (socket, sessionKey, eventName, eventData, ) => {
+    socket.emit(eventName, eventData);
+    socket.to(sessionKey).emit(eventName, eventData);
+}
+
 module.exports = function(io, getSession, gameData) {
 
     io.of('/hangman').on('connection', async (socket) => {
@@ -52,7 +57,7 @@ module.exports = function(io, getSession, gameData) {
             socket.emit('sessionUpdated', getSessionData(gameData)(sessionKey));
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
 
-            const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData));
+            const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData), emitToSession);
             const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionKey));
 
             socket.on('newMessage', gameSocketService.handleChat);

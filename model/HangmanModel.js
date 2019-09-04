@@ -14,7 +14,6 @@ class HangmanModel{
           guessedLetters: [],
           timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
           initialNumberOfLives: 4,
-          activeUser: "",
           activeUsers: [],
           users: {}
         }

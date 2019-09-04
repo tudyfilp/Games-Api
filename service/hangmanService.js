@@ -21,7 +21,7 @@ const getPlayerUsername = async (userKey) => {
 
 const getNewSession = async (req, res) => {
     let existingSession = await (repository.getSessionByUserKey(req.body.userId));
-
+    console.log(existingSession);
     if (existingSession === null) {
         repository.getSession(async (session) => {
 
@@ -41,6 +41,32 @@ const getNewSession = async (req, res) => {
         res.send(JSON.stringify(existingSession));
     }
 };
+
+const prepareClientToConnectToGivenSession = async (req, res) => {
+    let sessionKey = req.body.sessionKey;
+    let userKey = req.body.userKey;
+
+    let clientsActiveSession = await repository.getSessionByUserKey(userKey);
+    console.log(clientsActiveSession);
+    if(clientsActiveSession != null){
+        try {
+            await repository.removeUserFromSession(userKey, sessionKey);
+
+            res.send(JSON.stringify({
+                status: 'OK'
+            }));
+        } catch (err) {
+            res.send(JSON.stringify({
+                status: `Error: ${err}`
+            }));
+        }
+    } else {
+        res.send(JSON.stringify({
+            status: 'OK'
+        }))
+    }
+
+}
 
 const addUserToSession = async (userId, sessionKey, getSessionData) => {
     let session = getSessionData(sessionKey);
@@ -74,12 +100,7 @@ const getSessionForClient = (session) => {
     return sessionCopy;
 }
 
-const emitToSession = (socket, session, eventName, eventData, ) => {
-    socket.emit(eventName, eventData);
-    socket.to(session).emit(eventName, eventData);
-}
-
-const getHangmanSocketService = (gameData, socket, getSession, getSessionData) => {
+const getHangmanSocketService = (gameData, socket, getSession, getSessionData, emitToSession) => {
     return {
         letterPressed: async ({ sessionId, userId, letter }) => {
 
@@ -153,5 +174,6 @@ module.exports = {
     addUserToSession,
     getHangmanSocketService,
     getSessionByKey,
-    removeUserFromSession
+    removeUserFromSession,
+    prepareClientToConnectToGivenSession
 };
