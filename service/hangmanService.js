@@ -21,10 +21,8 @@ const getPlayerUsername = async (userKey) => {
 
 const getNewSession = async (req, res) => {
     let existingSession = await (repository.getSessionByUserKey(req.body.userId));
-    console.log(existingSession);
     if (existingSession === null) {
         repository.getSession(async (session) => {
-
             if (session === null) {
                 session = await repository.addSession();
             }
@@ -82,9 +80,9 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
     repository.setSession(sessionKey, session.data);
 }
 
-
 const registerNewLetter = (userId, session, letter) => {
     repository.registerLetter(userId, session.data, letter);
+    session.data.pressedLetters[letter] = true; 
 
     if (repository.isPhraseComplete(session))
         repository.endGame(session);
@@ -109,14 +107,14 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
 
             registerNewLetter(userId, session, letter);
 
-            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) 
+            if (InitialGuessedLetters.length !== session.data.guessedLetters.length)
                 emitToSession(socket, getSession(socket), 'userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
-    
+
             emitToSession(socket, getSession(socket), 'sessionUpdated', getSessionForClient(session))
 
             repository.setSession(session.id, session.data);
-            
-            if(isGameEnded(session))
+
+            if (isGameEnded(session))
                 delete gameData[session.id];
         }
     }
