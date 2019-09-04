@@ -91,12 +91,11 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
         let path = "games/" + gameKey + "/sessions";
 
-        this._database.collection(path).where("activeUsers", "array-contains", userKey).get().then((r) => {
-            if (r.docs[0].data().gameEnded === true) {
+        return await this._database.collection(path).where("gameEnded","==",false).where("activeUsers", "array-contains", userKey).get().then((r) => {
+                if(r.size === 0) {return null;}
                 return ({ sessionData: r.docs[0].data(), sessionId: r.docs[0].id });
-            }
         });
-        return null;
+    
     }
 
     getSession(gameKey, cb) {
