@@ -61,10 +61,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         let phrase = session.phrase;
 
         for (var pos in phrase) {
-            if (!foundLetters.hasOwnProperty(phrase[pos]) && isLetter(phrase[pos]))
-                foundLetters[phrase[pos]] = 1;
-            else if (foundLetters.hasOwnProperty(phrase[pos]) && isLetter(phrase[pos]))
-                foundLetters[phrase[pos]] = foundLetters[phrase[pos]] + 1;
+            if (!foundLetters.hasOwnProperty(phrase[pos].toLowerCase()) && isLetter(phrase[pos].toLowerCase()))
+                foundLetters[phrase[pos].toLowerCase()] = 1;
+            else if (foundLetters.hasOwnProperty(phrase[pos].toLowerCase()) && isLetter(phrase[pos].toLowerCase()))
+                foundLetters[phrase[pos].toLowerCase()] = foundLetters[phrase[pos].toLowerCase()] + 1;
         }
 
         session.phraseLetters = foundLetters;
@@ -123,7 +123,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     checkLetter(sessionKey, letter) {
         let phrase = this.getPhrase(sessionKey);
 
-        let result = phrase.search(letter);
+        let result = phrase.toLowerCase().search(letter.toLowerCase());
 
         if (result == -1) {
             return false;
@@ -141,16 +141,16 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
 
     getLetterScore(session, letter) {
-        let score = 100* (1/(session.phraseLetters[letter]));
+        let score = 100* (1/(session.phraseLetters[letter.toLowerCase()]));
         return score;
     }
 
     addGuessedLetter(session, letter) {
-        session.guessedLetters.push(letter);
+        session.guessedLetters.push(letter.toLowerCase());
     }
     isLetterGuessed(session, letter) {
 
-        return session.guessedLetters.includes(letter);
+        return session.guessedLetters.includes(letter.toLowerCase());
 
     }
 
@@ -167,8 +167,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         let phrase = this.getPhrase(session);
 
         for (var i = 0; i < phrase.length; i++) {
-            if (phrase[i] === letter) {
-                completedPhrase[i] = letter;
+            if (phrase[i].toLowerCase() === letter.toLowerCase()) {
+                completedPhrase[i] = phrase[i];
             }
         }
         this.setCompletedPhrase(session, completedPhrase);
@@ -191,8 +191,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     increaseScore(userKey, session, letter) {
 
         let user = this.getUser(userKey, session);
-        let points = this.getLetterScore(session, letter);
-
+        let points = Math.round(this.getLetterScore(session, letter));
         session.users[userKey].score = user.score + points;
 
     }
@@ -210,7 +209,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     isGameEnded(session) {
         return session.data.gameEnded;
     }
-    
+
     registerLetter(userKey, session, letter) {
         if (session.users[userKey].lives > 0) {
             if (!this.isLetterGuessed(session, letter)) {
