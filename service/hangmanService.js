@@ -92,7 +92,8 @@ const registerNewLetter = (userId, session, letter) => {
 const getSessionForClient = (session) => {
     let sessionCopy = JSON.parse(JSON.stringify(session));
 
-    delete sessionCopy.data.phrase;
+    if(!session.data.gameEnded)
+        delete sessionCopy.data.phrase;
     delete sessionCopy.data.phraseLetters;
 
     return sessionCopy;
@@ -106,6 +107,8 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
             let InitialGuessedLetters = session.data.guessedLetters.slice();
 
             registerNewLetter(userId, session, letter);
+            if(noUserAlive(session))
+                endGame(session);
 
             if (InitialGuessedLetters.length !== session.data.guessedLetters.length)
                 emitToSession(socket, getSession(socket), 'userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
@@ -120,8 +123,23 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
     }
 }
 
+const noUserAlive = (session) => {
+    let users = session.data.users;
+
+    for(var key in users) {
+        if(users[key].lives > 0)
+            return false;
+    }
+
+    return true;
+}
+
 const isGameEnded = (session) => {
     return session.data.gameEnded;
+}
+
+const endGame = (session) => {
+    session.data.gameEnded = true;
 }
 
 const getSessionByKey = async (sessionKey) => {
