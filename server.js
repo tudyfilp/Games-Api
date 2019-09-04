@@ -41,7 +41,7 @@ app.use(express.static('public'));
 app.use('/gamesThumbnails', express.static('images'));
 
 app.use('/admin', adminRouter);
-app.use('/getSession', sessionRouter);
+app.use('/session', sessionRouter);
 
 app.get('/', (req, res) => {
     res.send("Hello there, we've been expecting you");

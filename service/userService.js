@@ -7,34 +7,32 @@ const repository = new UserFirebaseRepository(db, UserValidator);
 const authenticateUser = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
 
+    let response;
+
     if (req.body.hasOwnProperty('username') === true) {
         try {
             let user = await repository.addUser(req.body.username);
             
-            res.end(JSON.stringify(
-                {
-                    status: 'OK',
-                    message: user
-                }
-            ));
+            response = {
+                status: 'OK',
+                message: user
+            };
         }
         catch(e) {
-            res.end(JSON.stringify(
-                {
-                    status: 'ERROR',
-                    message: e.message
-                }
-            ));
+            response = {
+                status: 'ERROR',
+                message: e.message
+            };
         }
     }
     else {
-        res.end(JSON.stringify(
-            {
-                status: 'ERROR',
-                message: 'No username was supplied.'
-            }
-        ));
+        response = {
+            status: 'ERROR',
+            message: 'No username was supplied.'
+        };
     }
+
+    res.end(JSON.stringify(response));
 };
 
 module.exports = {

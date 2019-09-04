@@ -4,7 +4,7 @@ const getRandomItem = require('../utilities/getRandomItem');
 const isLetter = require('../utilities/isLetter');
 
 class HangmanFirebaseRepository extends GamesFirebaseRepository {
-    constructor(db) {
+    constructor(db, validator) {
         super(db, 'games');
 
         this._gameKey = "78mzQLCv5fF6I1K1TnJU";
@@ -14,6 +14,8 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         this._phrasesPath = `games/${this._gameKey}/phrases`;
 
         this.model = new HangmanModel();
+
+        this._validator = validator;
     }
 
     async addSession() {
@@ -23,7 +25,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     async setSession(sessionKey, sessionData) {
 
-        super.setSession(this._gameKey, sessionKey, sessionData);
+        return super.setSession(this._gameKey, sessionKey, sessionData);
     }
 
     async getSessionByUserKey(userKey) {
@@ -141,13 +143,14 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
     }
 
     getLetterScore(session, letter) {
-        let score = Math.round(1/(session.phraseLetters[letter]));
+        let score = 100* (1/(session.phraseLetters[letter]));
         return score;
     }
 
     addGuessedLetter(session, letter) {
         session.guessedLetters.push(letter);
     }
+
     isLetterGuessed(session, letter) {
 
         return session.guessedLetters.includes(letter);
@@ -171,6 +174,7 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
                 completedPhrase[i] = letter;
             }
         }
+
         this.setCompletedPhrase(session, completedPhrase);
     }
 
@@ -224,6 +228,26 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     isGameEnded(session) {
         return session.data.gameEnded;
+    }
+
+    async removeUserFromSession(userId, sessionId) {
+        let session = await this.getSessionByKey(sessionId);
+
+        if (session.data === undefined){
+            throw new Error('There is no session having the given key.');
+        }
+            
+
+        if (this._validator.isUserInSession(session, userId) === true) {
+            session.data.activeUsers = session.data.activeUsers.filter(userKey => userKey !== userId);
+            delete session.data.users[userId];
+            await this.setSession(session.id, session.data);
+        }
+        else {
+            throw new Error('The user is already out of this session.');
+        }
+
+        return session;
     }
 }
 module.exports = HangmanFirebaseRepository;

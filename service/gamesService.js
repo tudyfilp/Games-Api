@@ -3,7 +3,6 @@ const GamesFirebaseRepository = require('../repository/GamesFirebaseRepository')
 const HangmanFirebaseRepository = require('../repository/HangmanFirebaseRepository');
 
 const repository = new GamesFirebaseRepository(db);
-const hangmanRepository = new HangmanFirebaseRepository(db);
 
 const getAllGames = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');

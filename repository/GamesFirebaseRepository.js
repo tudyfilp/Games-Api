@@ -71,6 +71,14 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
     }
 
+    async getUsername(userKey) {
+
+        let docRef = await this._database.collection("users").doc(userKey).get();
+
+        return docRef.data().username;
+
+    }
+
     async isUserInSession(userKey, sessionKey) {
         let users = await this.getUsers(sessionKey);
 
