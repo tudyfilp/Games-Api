@@ -53,7 +53,6 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
 
 }
 
-
 const registerNewLetter = (userId, session, letter) => {
     repository.registerLetter(userId, session.data, letter);
 
@@ -80,14 +79,14 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
 
             registerNewLetter(userId, session, letter);
 
-            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) 
+            if (InitialGuessedLetters.length !== session.data.guessedLetters.length)
                 emitToSession(socket, getSession(socket), 'userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
-    
+
             emitToSession(socket, getSession(socket), 'sessionUpdated', getSessionForClient(session))
 
             repository.setSession(session.id, session.data);
-            
-            if(isGameEnded(session))
+
+            if (isGameEnded(session))
                 delete gameData[session.id];
         }
     }

@@ -36,6 +36,12 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         return super.getActiveUsers(this._gameKey, sessionKey);
     }
 
+    async getSessionByKey(sessionKey) {
+
+        return super.getSessionByKey(this._gameKey, sessionKey);
+
+    }
+
     async getRandomSession() {
 
         let phraseInfo = await this.getRandomPhrase();
@@ -112,12 +118,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
             return Promise.resolve({ category: randomCategory, phrase: chosenSentence });
 
         });
-    }
-
-    async getSessionByKey(sessionKey) {
-
-        return super.getSessionByKey(this._gameKey, sessionKey);
-
     }
 
     checkLetter(sessionKey, letter) {
@@ -207,6 +207,10 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
 
     }
 
+    isGameEnded(session) {
+        return session.data.gameEnded;
+    }
+    
     registerLetter(userKey, session, letter) {
         if (session.users[userKey].lives > 0) {
             if (!this.isLetterGuessed(session, letter)) {
@@ -222,9 +226,6 @@ class HangmanFirebaseRepository extends GamesFirebaseRepository {
         }
     }
 
-    isGameEnded(session) {
-        return session.data.gameEnded;
-    }
 }
 module.exports = HangmanFirebaseRepository;
 

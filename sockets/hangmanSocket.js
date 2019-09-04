@@ -66,7 +66,6 @@ module.exports = function(io, getSession, gameData) {
             socket.on('letterPressed', hangmanSocketService.letterPressed);
             socket.on('disconnectFromSession', () => {
                 socket.disconnect();
-                console.log(gameData);
             });
 
         });
