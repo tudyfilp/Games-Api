@@ -45,12 +45,12 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
     }
 
-    async setSessionField(gameKey, sessionKey, item) {
+    // async setSessionField(gameKey, sessionKey, item) {
 
-        await this.setSession(gameKey, sessionKey, item);
+    //     await this.setSession(gameKey, sessionKey, item);
 
-        return "added";
-    }
+    //     return "added";
+    // }
 
     async getSessionByKey(gameKey, sessionKey) {
 
@@ -91,11 +91,11 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
         let path = "games/" + gameKey + "/sessions";
 
-        return await this._database.collection(path).where("gameEnded","==",false).where("activeUsers", "array-contains", userKey).get().then((r) => {
-                if(r.size === 0) {return null;}
-                return ({ sessionData: r.docs[0].data(), sessionId: r.docs[0].id });
+        return await this._database.collection(path).where("gameEnded", "==", false).where("activeUsers", "array-contains", userKey).get().then((r) => {
+            if (r.size === 0) { return null; }
+            return ({ sessionData: r.docs[0].data(), sessionId: r.docs[0].id });
         });
-    
+
     }
 
     getSession(gameKey, cb) {
