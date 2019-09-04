@@ -20,6 +20,10 @@ class HangmanModel{
       this.nrOfLivesPerActiveUser = 4;
     }
 
+    get availablePlaces() {
+      return this.session.availablePlaces;
+    }
+
 }
 
 module.exports = HangmanModel;

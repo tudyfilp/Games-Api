@@ -25,8 +25,6 @@ class GamesFirebaseRepository extends FirebaseRepository {
 
         let documentRef = this._database.collection(path).doc(sessionKey);
 
-        //delete item.id;
-
         await documentRef.set(item, { merge: true });
     }
 
@@ -43,13 +41,6 @@ class GamesFirebaseRepository extends FirebaseRepository {
                 }
             });
 
-    }
-
-    async setSessionField(gameKey, sessionKey, item) {
-
-        await this.setSession(gameKey, sessionKey, item);
-
-        return "added";
     }
 
     async getSessionByKey(gameKey, sessionKey) {

@@ -3,6 +3,5 @@ const hangmanService = require('../service/hangmanService');
 
 router.post('/hangman/getNewSession', hangmanService.getNewSession); 
 router.post('/hangman/prepareClientToConnectToGivenSession', hangmanService.prepareClientToConnectToGivenSession);
-// router.post('/hangman/removeUserFromSession', hangmanService.removeUserFromSession);
 
 module.exports = router;

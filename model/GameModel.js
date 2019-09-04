@@ -13,6 +13,7 @@ class GameModel{
           users: {} 
         }
     }
+    
 
 }
 
