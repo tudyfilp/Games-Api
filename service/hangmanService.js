@@ -77,12 +77,7 @@ const getSessionForClient = (session) => {
     return sessionCopy;
 }
 
-const emitToSession = (socket, session, eventName, eventData, ) => {
-    socket.emit(eventName, eventData);
-    socket.to(session).emit(eventName, eventData);
-}
-
-const getHangmanSocketService = (gameData, socket, getSession, getSessionData) => {
+const getHangmanSocketService = (gameData, socket, getSession, getSessionData, emitToSession) => {
     return {
         letterPressed: async ({ sessionId, userId, letter }) => {
 
