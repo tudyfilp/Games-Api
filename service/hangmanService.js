@@ -14,7 +14,7 @@ const mergeUsernamesIntoSession = async (sessionData) => {
     return sessionData;
 };
 
-const getPlayeryUsername = async (userKey) => {
+const getPlayerUsername = async (userKey) => {
     return (await userRepository.getItemById(userKey)).username;
 }
 
@@ -35,14 +35,12 @@ const getNewSession = async (req, res) => {
             delete session.sessionData.phraseLetters;
 
             await mergeUsernamesIntoSession(session.sessionData);
-
             res.send(JSON.stringify(session));
         });
     }
     else {
 
         await mergeUsernamesIntoSession(existingSession.sessionData);
-
         res.send(JSON.stringify(existingSession));
     }
 };
@@ -54,7 +52,7 @@ const addUserToSession = async (userId, sessionKey, getSessionData) => {
         repository.addUser(userId, session.data);
 
         session.data.activeUsers.push(userId);
-        session.data.users[userId].username = await getPlayeryUsername(userId);
+        session.data.users[userId].username = await getPlayerUsername(userId);
         session.data.availablePlaces = session.data.availablePlaces - session.data.activeUsers.length;
     }
     repository.setSession(sessionKey, session.data);
@@ -70,7 +68,21 @@ const registerNewLetter = (userId, session, letter) => {
 
 }
 
-const getHangmanSocketService = (socket, getSession, getSessionData) => {
+const getSessionForClient = (session) => {
+    let sessionCopy = JSON.parse(JSON.stringify(session));
+
+    delete sessionCopy.data.phrase;
+    delete sessionCopy.data.phraseLetters;
+
+    return sessionCopy;
+}
+
+const emitToSession = (socket, session, eventName, eventData, ) => {
+    socket.emit(eventName, eventData);
+    socket.to(session).emit(eventName, eventData);
+}
+
+const getHangmanSocketService = (gameData, socket, getSession, getSessionData) => {
     return {
         letterPressed: async ({ sessionId, userId, letter }) => {
 
@@ -79,25 +91,15 @@ const getHangmanSocketService = (socket, getSession, getSessionData) => {
 
             registerNewLetter(userId, session, letter);
 
-            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) {
-                let username = await (repository.getUsername(userId));
-
-                socket.emit('userGuessedLetter', { sender: "server", username: username, letter });
-            }
-
-            let sessionCopy = JSON.parse(JSON.stringify(session));
-
-            // if(isGameEnded(session))
-            //     delete session;
-
-            delete sessionCopy.data.phrase;
-            delete sessionCopy.data.phraseLetters;
-
-            // await mergeUsernamesIntoSession(sessionCopy.data);
-
-            socket.emit('sessionUpdated', sessionCopy);
+            if (InitialGuessedLetters.length !== session.data.guessedLetters.length) 
+                emitToSession(socket, getSession(socket), 'userGuessedLetter', { sender: 'server', player: session.data.users[userId].username, letter });
+    
+            emitToSession(socket, getSession(socket), 'sessionUpdated', getSessionForClient(session))
 
             repository.setSession(session.id, session.data);
+            
+            if(isGameEnded(session))
+                delete gameData[session.id];
         }
     }
 }

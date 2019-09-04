@@ -54,11 +54,15 @@ module.exports = function(io, getSession, gameData) {
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
             socket.emit('newUser', {sender: "server", userId: userId});
 
-            const hangmanSocketService = hangmanService.getHangmanSocketService(socket, getSession, getSessionData(gameData));
+            const hangmanSocketService = hangmanService.getHangmanSocketService(gameData, socket, getSession, getSessionData(gameData));
             const gameSocketService = gamesService.getGamesSocketService(socket, getSession, getSessionMessages(gameData, sessionKey));
 
             socket.on('newMessage', gameSocketService.handleChat);
             socket.on('letterPressed', hangmanSocketService.letterPressed);
+            socket.on('disconnectFromSession', () => {
+                socket.disconnect();
+                console.log(gameData);
+            });
 
         });
 
