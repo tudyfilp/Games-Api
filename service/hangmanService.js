@@ -218,8 +218,6 @@ const removeUserFromSession = async (userId, sessionId) => {
 };
 
 const isUserInSession = (session, userId) => {
-    if(!session.data || session.data.hasOwnProperty('users'))
-        return false;
     return Object.keys(session.data.users).includes(userId);
 };
 
