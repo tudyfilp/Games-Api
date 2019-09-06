@@ -103,18 +103,13 @@ class GamesFirebaseRepository extends FirebaseRepository {
             .limit(1)
             .get()
             .then((querySnapshot) => {
-                if (querySnapshot.empty === true) {
+                if (querySnapshot.empty) 
                     cb(null);
-                }
-                else {
-
+                else 
                     cb({
                         sessionData: querySnapshot.docs[0].data(),
                         sessionId: querySnapshot.docs[0].id
                     });
-
-                }
-
             });
     }
 
