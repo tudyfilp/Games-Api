@@ -54,9 +54,9 @@ module.exports = function(io, getSession, gameData) {
 
         socket.join(sessionKey, async () => {
             await hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
-            console.log(JSON.stringify(gameData[sessionKey]));
+            //console.log(JSON.stringify(gameData[sessionKey]));
 
-            socket.emit('sessionUpdated', getSessionData(gameData)(sessionKey));
+            emitToSession(socket, sessionKey, 'sessionUpdated', getSessionData(gameData)(sessionKey));
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
 
             emitToSession(socket, sessionKey, "newUser", {sender: "server", username: gameData[sessionKey].data.users[userId].username});
@@ -72,7 +72,8 @@ module.exports = function(io, getSession, gameData) {
                 //console.log(JSON.stringify(gameData));
                 await hangmanSocketService.removeUserFromSession(userId, sessionKey);
                 console.log(JSON.stringify(gameData[sessionKey]));
-
+                
+                socket.broadcast.to(getSession(socket)).emit('sessionUpdated', getSessionData(gameData)(sessionKey));
                 socket.leave(getSession(socket));
                 socket.emit('leftSession');
                 

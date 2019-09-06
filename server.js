@@ -17,7 +17,6 @@ const PORT = process.env.PORT || 3000;
 const userService = require('./service/userService');
 const gamesService = require('./service/gamesService');
 const adminService = require('./service/adminService');
-const hangmanService = require('./service/hangmanService');
 
 const path = require('path');
 app.use(cors());
