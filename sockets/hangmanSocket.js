@@ -53,8 +53,7 @@ module.exports = function(io, getSession, gameData) {
         }
 
         socket.join(sessionKey, async () => {
-            await hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData));
-            //console.log(JSON.stringify(gameData[sessionKey]));
+            await hangmanService.addUserToSession(userId, sessionKey, getSessionData(gameData), gameData);
 
             emitToSession(socket, sessionKey, 'sessionUpdated', getSessionData(gameData)(sessionKey));
             socket.emit('getMessages', getSessionMessages(gameData, sessionKey));
@@ -67,22 +66,9 @@ module.exports = function(io, getSession, gameData) {
             socket.on('newMessage', gameSocketService.handleChat);
             socket.on('letterPressed', hangmanSocketService.letterPressed);
 
-            socket.on('leaveSession', async () => {
+            socket.on('leaveSession', () => hangmanSocketService.leaveSession(userId, sessionKey));
 
-                //console.log(JSON.stringify(gameData));
-                await hangmanSocketService.removeUserFromSession(userId, sessionKey);
-                console.log(JSON.stringify(gameData[sessionKey]));
-                
-                socket.broadcast.to(getSession(socket)).emit('sessionUpdated', getSessionData(gameData)(sessionKey));
-                socket.leave(getSession(socket));
-                socket.emit('leftSession');
-                
-            });
-
-            socket.on('disconnectFromSession', () => {
-                console.log('user disconnected from session');
-                //hangmanSocketService.removeUserFromRoom(userId, sessionKey);
-            });
+            socket.on('disconnectFromSession', () => hangmanSocketService.disconnectFromSession(userId));
         });
         
         socket.on('disconnect', async (reason) => {

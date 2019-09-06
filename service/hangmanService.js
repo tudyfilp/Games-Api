@@ -45,7 +45,6 @@ const prepareClientToConnectToGivenSession = async (req, res) => {
     let userKey = req.body.userKey;
 
     let clientsActiveSession = await repository.getSessionByUserKey(userKey);
-    console.log(clientsActiveSession);
     if(clientsActiveSession != null){
         try {
             await repository.removeUserFromSession(userKey, sessionKey);
@@ -55,7 +54,8 @@ const prepareClientToConnectToGivenSession = async (req, res) => {
             }));
         } catch (err) {
             res.send(JSON.stringify({
-                status: `Error: ${err}`
+                status: 'ERROR',
+                message: err
             }));
         }
     } else {
@@ -66,18 +66,33 @@ const prepareClientToConnectToGivenSession = async (req, res) => {
 
 }
 
-const addUserToSession = async (userId, sessionKey, getSessionData) => {
+const deleteUserFromOldSession = (userId, gameData) => {
+    for(sessionKey in gameData) {
+        let session = gameData[sessionKey];
+        if(isUserInSession(session, userId)){
+            removeUserFromSessionMemory(session, userId);
+            return;
+        }
+    }
+}
+
+const addUserToSession = async (userId, sessionKey, getSessionData, gameData) => {
+    deleteUserFromOldSession(userId, gameData);
     let session = getSessionData(sessionKey);
-
-    if (isUserInSession(session, userId) === false) {
+    let dbSession = await repository.getSessionByKey(sessionKey);
+    if (!isUserInSession(dbSession, userId)) {
         repository.addUser(userId, session.data);
-
-        session.data.activeUsers.push(userId);
-        session.data.users[userId].username = await getPlayerUsername(userId);
-        repository.updateAvailablePlaces(session);
+    } else {
+        let userData = dbSession.data.users[userId];
+        session.data.users[userId] = userData;
     }
 
+    if(!session.data.activeUsers.includes(userId))
+            session.data.activeUsers.push(userId);
+    repository.updateAvailablePlaces(session);
+    session.data.users[userId].username = await getPlayerUsername(userId);
     repository.setSession(sessionKey, getSessionForDatabase(session).data);
+
 }
 
 const registerNewLetter = (userId, session, letter) => {
@@ -113,7 +128,7 @@ const getSessionForDatabase = (session) => {
 };
 
 const getHangmanSocketService = (gameData, socket, getSession, getSessionData, emitToSession) => {
-    return {
+    var self =  {
         letterPressed: async ({ sessionId, userId, letter }) => {
 
             let session = getSessionData(sessionId);
@@ -147,9 +162,31 @@ const getHangmanSocketService = (gameData, socket, getSession, getSessionData, e
             catch(e) {
                 console.log(e);
             }
+        },
+        leaveSession: async (userId, sessionKey) => {
+            self.removeUserFromSession(userId, sessionKey);
+
+            socket.leave(getSession(socket));
+            socket.emit('leftSession');
+            
+        },
+        disconnectFromSession: (userId) => {
+            console.log(`user ${userId} disconnected from session`);
+            removeUserFromSessionMemory(gameData[getSession(socket), userId]);
+            //hangmanSocketService.removeUserFromRoom(userId, sessionKey);
         }
     }
+    return self;
 }
+
+const removeUserFromSessionMemory = (session, userId) => {
+    if(!session)
+        return;
+    
+    delete session.data.users[userId];
+    session.data.activeUsers = session.data.activeUsers.filter(userKey => userKey !== userId);
+}
+
 
 const noUserAlive = (session) => {
     let users = session.data.users;
@@ -181,7 +218,9 @@ const removeUserFromSession = async (userId, sessionId) => {
 };
 
 const isUserInSession = (session, userId) => {
-    return session.data.activeUsers.includes(userId);
+    if(!session.data || session.data.hasOwnProperty('users'))
+        return false;
+    return Object.keys(session.data.users).includes(userId);
 };
 
 
